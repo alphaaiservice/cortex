@@ -1,0 +1,73 @@
+{
+  "marketplace": {
+    "name": "alpha-ai-marketplace",
+    "description": "Official plugin marketplace by Alpha AI Service Pvt Ltd",
+    "url": "https://alphaaiservice.com/marketplace",
+    "author": {
+      "name": "Alpha AI Service Pvt Ltd",
+      "url": "https://alphaaiservice.com",
+      "email": "plugins@alphaaiservice.com"
+    }
+  },
+  "plugins": [
+    {
+      "name": "alpha-forge",
+      "version": "1.0.0",
+      "description": "AlphaForge — SDLC Automation Engine. 37 commands, 11 agents, 9 skills, 6 hooks. Forge production-ready software.",
+      "longDescription": "AlphaForge automates the entire software development lifecycle. Generate a PRD from an idea, scaffold projects, build autonomously with self-healing, run multi-agent code reviews, generate tests, deploy with safety checks, and maintain with dependency updates. Supports 3 backend languages: Python/FastAPI, Node.js/NestJS, Java/Spring Boot. Enforces production-grade engineering standards: JWT HTTP-Only Cookies, MySQL+ORM, MongoDB, Redis, React Native, Next.js, GenAI (LiteLLM/Vercel AI/Spring AI + RAG), MCP/A2A protocols. Includes SVG brand identity generation.",
+      "author": {
+        "name": "Alpha AI Service Pvt Ltd",
+        "url": "https://alphaaiservice.com"
+      },
+      "license": "MIT",
+      "repository": "https://github.com/alpha-ai-service/alpha-forge",
+      "homepage": "https://alphaaiservice.com/alpha-forge",
+      "keywords": [
+        "sdlc",
+        "devops",
+        "autonomous-build",
+        "code-review",
+        "testing",
+        "deployment",
+        "fastapi",
+        "genai",
+        "mcp",
+        "a2a",
+        "agent-teams",
+        "ci-cd",
+        "security-scan",
+        "project-scaffold",
+        "branding"
+      ],
+      "categories": [
+        "Development Tools",
+        "DevOps",
+        "AI & Machine Learning",
+        "Testing",
+        "Code Quality"
+      ],
+      "engines": {
+        "claude-code": ">=2.0.0"
+      },
+      "components": {
+        "commands": 37,
+        "agents": 11,
+        "skills": 9,
+        "hooks": 6
+      },
+      "features": [
+        "Fully autonomous product building (PRD to deployed product)",
+        "Self-healing error recovery during build",
+        "Multi-agent parallel execution with Agent Teams",
+        "Context-aware standard enforcement (Core + Conditional)",
+        "36 engineering standards covering full SDLC",
+        "OWASP Top 10 security scanning with auto-fix",
+        "GenAI stack: LiteLLM + Google ADK + Qdrant RAG",
+        "MCP Protocol and A2A Protocol support",
+        "Performance profiling and load testing",
+        "Infrastructure as Code generation (Docker, K8s, Terraform)"
+      ],
+      "path": "../"
+    }
+  ]
+}

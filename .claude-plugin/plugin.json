@@ -1,0 +1,8 @@
+{
+  "name": "alpha-forge",
+  "description": "AlphaForge — SDLC Automation Engine. 37 commands, 11 agents, 9 skills, 6 hooks. Forge production-ready software from idea to deployment with zero human intervention.",
+  "author": {
+    "name": "Alpha AI Service Pvt Ltd",
+    "email": "plugins@alphaaiservice.com"
+  }
+}

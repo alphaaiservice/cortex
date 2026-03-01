@@ -1,0 +1,76 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/safe-bash-check.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/session-context.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'INPUT=$(cat); FILE=$(echo \"$INPUT\" | jq -r \".tool_input.file_path // empty\" 2>/dev/null); if [ -n \"$FILE\" ] && echo \"$FILE\" | grep -qE \"\\.py$\"; then if command -v ruff &>/dev/null; then ruff format \"$FILE\" 2>/dev/null && ruff check --fix \"$FILE\" 2>/dev/null && echo \"Auto-formatted: $FILE\"; elif command -v black &>/dev/null; then black --quiet \"$FILE\" 2>/dev/null && echo \"Auto-formatted: $FILE\"; fi; fi'",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/auto-build-stop-hook.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "TeammateIdle": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'INPUT=$(cat); TEAM=$(echo \"$INPUT\" | jq -r \".team_name // empty\" 2>/dev/null); if [ -n \"$TEAM\" ] && [ -d \"$HOME/.claude/tasks/${TEAM}\" ]; then PENDING=$(cat \"$HOME/.claude/tasks/${TEAM}\"/*.json 2>/dev/null | jq -s \"[.[] | select(.status == \\\"pending\\\")] | length\" 2>/dev/null || echo 0); if [ \"$PENDING\" -gt 0 ]; then echo \"$PENDING pending tasks remain. Claim next available task.\" >&2; exit 2; fi; fi; exit 0'",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "TaskCompleted": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'exit 0'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

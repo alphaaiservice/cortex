@@ -1,0 +1,44 @@
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Node (if any tooling is added later)
+node_modules/
+package-lock.json
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+.mypy_cache/
+.ruff_cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Backup files
+*.backup
+*.backup.*
+*.bak
+
+# Archives
+*.tar.gz
+*.zip
+
+# Claude Code session artifacts
+.claude/
