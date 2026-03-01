@@ -377,13 +377,13 @@ At the very start of every build, **BEFORE any other work**, execute this detect
 You MUST call the **TeamCreate** tool to create the build team. This is a real tool call, not pseudocode:
 
 **Call TeamCreate with:**
-- `team_name`: `"alpha-forge"` (or `"alpha-forge-{project-name}"` if project name is known)
+- `team_name`: `"cortex"` (or `"cortex-{project-name}"` if project name is known)
 - `description`: `"Alpha AI auto-build team for {project name}"`
 
 Example — you MUST actually invoke this:
 ```
 TeamCreate tool:
-  team_name = "alpha-forge"
+  team_name = "cortex"
   description = "Alpha AI auto-build team — Full-Stack Web"
 ```
 
@@ -399,7 +399,7 @@ After TeamCreate succeeds, spawn each teammate using the **Task** tool with `tea
 ```
 Agent tool:
   name = "viktor"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Backend lead: models, migrations, services"
@@ -423,7 +423,7 @@ RULES:
 ```
 Agent tool:
   name = "yuki"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Auth engineer: JWT, OAuth, RBAC, security"
@@ -449,7 +449,7 @@ RULES:
 ```
 Agent tool:
   name = "marcus"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "API engineer: routes, controllers, middleware"
@@ -473,7 +473,7 @@ RULES:
 ```
 Agent tool:
   name = "liam"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "QA lead: unit tests, integration tests, coverage"
@@ -498,7 +498,7 @@ RULES:
 ```
 Agent tool:
   name = "oleksiy"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "DevOps lead: Docker, CI/CD, deployment"
@@ -524,7 +524,7 @@ RULES:
 ```
 Agent tool:
   name = "aditya"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Extension lead: Chrome Extension MV3, service workers, content scripts, sidepanel UI"
@@ -589,7 +589,7 @@ See `/auto-build` Step 0.5.3 for full spawn prompts per teammate.
 ```
 Agent tool:
   name = "hiroshi"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "AI lead: LiteLLM, RAG, agents, guardrails"
@@ -715,7 +715,7 @@ When the PRD requires a specialist not in the core team:
 
 Agent tool:
   name = "daan"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Payment engineer: Razorpay integration"

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # ╔══════════════════════════════════════════════════════════════════╗
-# ║  AlphaForge — Installation Script                                 ║
+# ║  Cortex — Installation Script                                 ║
 # ║  By Alpha AI Service Pvt Ltd                                     ║
 # ║                                                                   ║
 # ║  Usage:                                                           ║
@@ -18,7 +18,7 @@ set -euo pipefail
 # ─────────────────────────────────────────────────
 # Constants
 # ─────────────────────────────────────────────────
-PLUGIN_NAME="alpha-forge"
+PLUGIN_NAME="cortex"
 PLUGIN_VERSION="1.0.0"
 PLUGIN_AUTHOR="Alpha AI Service Pvt Ltd"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -66,7 +66,7 @@ banner() {
 
 BANNER
     echo -e "${NC}"
-    echo -e "  ${WHITE}${BOLD}AlphaForge — SDLC Automation Engine${NC}"
+    echo -e "  ${WHITE}${BOLD}Cortex — SDLC Automation Engine${NC}"
     echo -e "  ${DIM}v${PLUGIN_VERSION} by ${PLUGIN_AUTHOR}${NC}"
     echo ""
     echo -e "  ${DIM}37 Commands | 11 Agents | 9 Skills | 6 Hooks${NC}"
@@ -419,16 +419,16 @@ setup_shell_alias() {
     shell_name="$(basename "${SHELL:-/bin/bash}")"
 
     if [[ "$shell_name" == "fish" ]]; then
-        alias_line="alias alphaforge='claude --plugin-dir $install_path'"
+        alias_line="alias cortex='claude --plugin-dir $install_path'"
         local fish_config="$HOME/.config/fish/config.fish"
-        if [[ -f "$fish_config" ]] && grep -q "alphaforge" "$fish_config" 2>/dev/null; then
-            info "Alias 'alphaforge' already exists in fish config"
+        if [[ -f "$fish_config" ]] && grep -q "cortex" "$fish_config" 2>/dev/null; then
+            info "Alias 'cortex' already exists in fish config"
             return
         fi
     else
-        alias_line="alias alphaforge='claude --plugin-dir $install_path'"
-        if [[ -f "$SHELL_RC" ]] && grep -q "alphaforge" "$SHELL_RC" 2>/dev/null; then
-            info "Alias 'alphaforge' already exists in $SHELL_RC"
+        alias_line="alias cortex='claude --plugin-dir $install_path'"
+        if [[ -f "$SHELL_RC" ]] && grep -q "cortex" "$SHELL_RC" 2>/dev/null; then
+            info "Alias 'cortex' already exists in $SHELL_RC"
             return
         fi
     fi
@@ -444,11 +444,11 @@ setup_shell_alias() {
     case "$answer" in
         ""|[yY]|[yY][eE][sS])
             echo "" >> "$SHELL_RC"
-            echo "# AlphaForge — Claude Code" >> "$SHELL_RC"
+            echo "# Cortex — Claude Code" >> "$SHELL_RC"
             echo "$alias_line" >> "$SHELL_RC"
             success "Alias added to $SHELL_RC"
             info "Run 'source $SHELL_RC' or restart your terminal to use it"
-            info "Then just type: ${GREEN}alphaforge${NC}"
+            info "Then just type: ${GREEN}cortex${NC}"
             ;;
         *)
             info "Skipped alias setup."
@@ -612,10 +612,10 @@ check_status() {
     # Check shell alias
     echo ""
     step "Shell Alias"
-    if grep -q "alphaforge" "$SHELL_RC" 2>/dev/null; then
-        success "Alias 'alphaforge' found in $SHELL_RC"
+    if grep -q "cortex" "$SHELL_RC" 2>/dev/null; then
+        success "Alias 'cortex' found in $SHELL_RC"
     else
-        dim "  No 'alphaforge' alias found"
+        dim "  No 'cortex' alias found"
     fi
 
     exit 0
@@ -626,7 +626,7 @@ check_status() {
 # ─────────────────────────────────────────────────
 uninstall() {
     banner
-    step "Uninstalling AlphaForge"
+    step "Uninstalling Cortex"
     echo ""
 
     local removed=0
@@ -695,15 +695,15 @@ uninstall() {
     fi
 
     # Remove shell alias
-    if [[ -f "$SHELL_RC" ]] && grep -q "alphaforge" "$SHELL_RC" 2>/dev/null; then
+    if [[ -f "$SHELL_RC" ]] && grep -q "cortex" "$SHELL_RC" 2>/dev/null; then
         echo ""
-        read -rp "  Remove 'alphaforge' alias from $SHELL_RC? [y/N] " answer
+        read -rp "  Remove 'cortex' alias from $SHELL_RC? [y/N] " answer
         case "$answer" in
             [yY]|[yY][eE][sS])
                 # Remove the alias and the comment line before it
                 local temp_file
                 temp_file=$(mktemp)
-                grep -v "alphaforge\|# AlphaForge" "$SHELL_RC" > "$temp_file"
+                grep -v "cortex\|# Cortex" "$SHELL_RC" > "$temp_file"
                 mv "$temp_file" "$SHELL_RC"
                 success "Alias removed from $SHELL_RC"
                 ;;
@@ -713,7 +713,7 @@ uninstall() {
     echo ""
     separator
     if [[ $removed -eq 1 ]]; then
-        echo -e "\n  ${GREEN}${BOLD}AlphaForge uninstalled.${NC}"
+        echo -e "\n  ${GREEN}${BOLD}Cortex uninstalled.${NC}"
     else
         echo -e "\n  ${YELLOW}Uninstall completed (some items may have been kept).${NC}"
     fi
@@ -908,13 +908,13 @@ DONE
             echo -e "  ${WHITE}Start Claude Code with the plugin:${NC}"
             echo ""
             echo -e "    ${GREEN}claude${NC}              ${DIM}# Auto-loads from settings.json${NC}"
-            echo -e "    ${GREEN}alphaforge${NC}         ${DIM}# If you added the shell alias${NC}"
+            echo -e "    ${GREEN}cortex${NC}         ${DIM}# If you added the shell alias${NC}"
             ;;
         dir)
             echo -e "  ${WHITE}Start Claude Code with the plugin:${NC}"
             echo ""
             echo -e "    ${GREEN}claude --plugin-dir $final_path${NC}"
-            echo -e "    ${GREEN}alphaforge${NC}         ${DIM}# If you added the shell alias${NC}"
+            echo -e "    ${GREEN}cortex${NC}         ${DIM}# If you added the shell alias${NC}"
             ;;
     esac
 

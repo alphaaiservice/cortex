@@ -2,7 +2,7 @@
 name: project-setup
 description: "Auto-invoked when Claude detects project initialization, scaffolding, or boilerplate setup tasks. Provides best practices for project structure, Docker multi-stage builds, CI/CD pipeline stages, environment management, and configuration file conventions."
 license: "Proprietary — Alpha AI Service Pvt Ltd"
-compatibility: "Designed for Claude Code with alpha-forge plugin"
+compatibility: "Designed for Claude Code with cortex plugin"
 metadata:
   author: "Alpha AI Service Pvt Ltd"
   version: "2.0"

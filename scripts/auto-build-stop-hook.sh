@@ -1,6 +1,6 @@
 #!/bin/bash
 #====================================================================
-# AlphaForge — Auto-Build Stop Hook
+# Cortex — Auto-Build Stop Hook
 #
 # This hook fires when Claude tries to stop during an auto-build.
 # If the build isn't complete, it blocks the exit and prompts

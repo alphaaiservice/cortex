@@ -2,7 +2,7 @@
 name: deployment
 description: "Auto-invoked when Claude handles deployment tasks, CI/CD configuration, or release management. Provides pre-deployment checklists, deployment strategy selection (rolling, blue-green, canary), environment promotion flow, rollback procedures, and post-deploy monitoring guidance."
 license: "Proprietary — Alpha AI Service Pvt Ltd"
-compatibility: "Designed for Claude Code with alpha-forge plugin"
+compatibility: "Designed for Claude Code with cortex plugin"
 metadata:
   author: "Alpha AI Service Pvt Ltd"
   version: "2.0"

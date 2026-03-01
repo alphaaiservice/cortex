@@ -413,7 +413,7 @@ Create `AUTO_BUILD_STATE.json`:
 >   - Do NOT "analyze failures first" — that IS a task for a teammate
 >   - Do NOT run tests, lint, or verification in the main context — delegate
 >
-> - **Step 0.5.2: Team Creation** — TeamCreate with "alpha-forge"
+> - **Step 0.5.2: Team Creation** — TeamCreate with "cortex"
 >
 > - **Step 0.5.3: Teammate Spawn Prompts** — Full inline prompts for:
 >   - **Core Squad (always)**: Viktor (backend), Marcus (API), Liam (QA), Yuki (auth), Oleksiy (DevOps)

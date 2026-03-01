@@ -95,11 +95,11 @@ You MUST call the **TeamCreate** tool (this is a real tool invocation, not pseud
 
 ```
 TeamCreate tool:
-  team_name = "alpha-forge"
+  team_name = "cortex"
   description = "Alpha AI auto-build team for {project name from PRD}"
 ```
 
-This creates the team and shared task list at `~/.claude/teams/alpha-forge/` and `~/.claude/tasks/alpha-forge/`.
+This creates the team and shared task list at `~/.claude/teams/cortex/` and `~/.claude/tasks/cortex/`.
 
 ### Step 0.5.3: Spawn Teammates — CALL Task TOOL with team_name + name
 
@@ -118,7 +118,7 @@ Call Agent tool 5 times (can be parallel since they are independent):
 ```
 Agent tool #1:
   name = "viktor"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Backend lead: models, migrations, services, repos"
@@ -129,7 +129,7 @@ COMMUNICATE: Use SendMessage tool to message teammates or team lead by name."
 
 Agent tool #2:
   name = "yuki"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Auth engineer: JWT, OAuth, RBAC, security"
@@ -141,7 +141,7 @@ COMMUNICATE: Use SendMessage tool."
 
 Agent tool #3:
   name = "marcus"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "API engineer: routes, controllers, middleware"
@@ -153,7 +153,7 @@ COMMUNICATE: Use SendMessage tool."
 
 Agent tool #4:
   name = "liam"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "QA lead: unit tests, integration tests, coverage"
@@ -165,7 +165,7 @@ COMMUNICATE: Use SendMessage tool."
 
 Agent tool #5:
   name = "oleksiy"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "DevOps lead: Docker, CI/CD, deployment"
@@ -189,7 +189,7 @@ COMMUNICATE: Use SendMessage tool."
 ```
 Agent tool — Frontend Dev #1 (Lead):
   name = "sofia"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Frontend lead: pages, layouts, routing, SSR/SSG"
@@ -209,7 +209,7 @@ End each task with: '🇸🇪 Sofia — Frontend Lead — Done! [summary]'"
 
 Agent tool — Frontend Dev #2:
   name = "emma"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Frontend forms: Zod schemas, validation, form UX"
@@ -229,7 +229,7 @@ End each task with: '🇬🇧 Emma — Forms Specialist — Done! [summary]'"
 
 Agent tool — Frontend Dev #3:
   name = "jinho"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Frontend state: TanStack Query, Zustand, API client, data fetching"
@@ -249,7 +249,7 @@ End each task with: '🇰🇷 Jin-Ho — State & API Specialist — Done! [summa
 
 Agent tool — Frontend Dev #4:
   name = "isabella"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Frontend UX: animations, transitions, dark mode, theming"
@@ -270,7 +270,7 @@ End each task with: '🇮🇹 Isabella — UX & Animation Specialist — Done! [
 
 Agent tool — Frontend Dev #5:
   name = "nadia"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Frontend components: design system, shared components, accessibility"
@@ -301,7 +301,7 @@ End each task with: '🇵🇱 Nadia — Component & Design System Specialist —
 ```
 Agent tool — Extension Dev #1 (Lead):
   name = "aditya"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Extension lead: MV3 architecture, service workers, sidepanel UI"
@@ -321,7 +321,7 @@ End each task with: '🇮🇳 Aditya — Extension Lead — Done! [summary]'"
 
 Agent tool — Extension Dev #2:
   name = "dmitri"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Extension content scripts: DOM inspection, element selection, action execution"
@@ -341,7 +341,7 @@ End each task with: '🇷🇺 Dmitri — Content Scripts Specialist — Done! [s
 
 Agent tool — Extension Dev #3:
   name = "mika"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Extension background: service worker, message passing, chrome.storage"
@@ -362,7 +362,7 @@ End each task with: '🇫🇮 Mika — Background & Messaging Specialist — Don
 
 Agent tool — Extension Dev #4:
   name = "hana"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Extension UI: options page, settings, permissions management"
@@ -382,7 +382,7 @@ End each task with: '🇯🇵 Hana — Options & Settings Specialist — Done! [
 
 Agent tool — Extension Dev #5:
   name = "oscar"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Extension build: Vite config, multi-target builds, extension testing"
@@ -412,7 +412,7 @@ End each task with: '🇸🇪 Oscar — Build & Testing Specialist — Done! [su
 ```
 Agent tool — Mobile Dev #1 (Lead):
   name = "rahul"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Mobile lead: navigation, drawer/tabs, deep links, routing"
@@ -431,7 +431,7 @@ End each task with: '🇮🇳 Rahul — Mobile Lead — Done! [summary]'"
 
 Agent tool — Mobile Dev #2:
   name = "chioma"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Mobile UI: NativeWind components, gestures, haptics"
@@ -451,7 +451,7 @@ End each task with: '🇳🇬 Chioma — Mobile UI Specialist — Done! [summary
 
 Agent tool — Mobile Dev #3:
   name = "lucas"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Mobile state: offline sync, secure storage, state management"
@@ -471,7 +471,7 @@ End each task with: '🇩🇪 Lucas — State & Offline Specialist — Done! [su
 
 Agent tool — Mobile Dev #4:
   name = "priya_m"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Mobile forms: camera, media, input handling, device APIs"
@@ -491,7 +491,7 @@ End each task with: '🇮🇳 Priya — Mobile Forms & Device Specialist — Don
 
 Agent tool — Mobile Dev #5:
   name = "tomas"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Mobile distribution: push notifications, deep links, app store"
@@ -514,7 +514,7 @@ End each task with: '🇧🇷 Tomas — Distribution Specialist — Done! [summa
 ```
 Agent tool:
   name = "hiroshi"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "AI lead: LiteLLM, RAG, agents, guardrails"
@@ -607,7 +607,7 @@ Update AUTO_BUILD_STATE.json with:
 ```json
 {
   "agent_teams_enabled": true,
-  "team_name": "alpha-forge",
+  "team_name": "cortex",
   "active_teammates": ["viktor", "yuki", "marcus", "liam", "oleksiy"],
   "parallel_phases": [
     {"phases": [3, 6], "status": "parallel"},

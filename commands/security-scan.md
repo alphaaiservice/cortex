@@ -850,7 +850,7 @@ Generate the report and save as `SECURITY_AUDIT_REPORT.md` in the project root:
 
 **Date**: [today's date]
 **Project**: [project name from package.json or pyproject.toml]
-**Auditor**: Claude Security Scanner (AlphaForge)
+**Auditor**: Claude Security Scanner (Cortex)
 **Scan Type**: [Standard / Full] [Auto-fix: Yes/No]
 **Risk Score**: [CRITICAL / HIGH / MEDIUM / LOW]
 

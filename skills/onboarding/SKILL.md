@@ -2,7 +2,7 @@
 name: onboarding
 description: "Auto-invoked when Claude detects developer onboarding tasks, environment setup questions, or codebase exploration from new team members. Provides structured onboarding checklists (Day 1 through Week 2), setup guides with copy-pasteable commands, troubleshooting FAQ templates, and architecture overview documentation."
 license: "Proprietary — Alpha AI Service Pvt Ltd"
-compatibility: "Designed for Claude Code with alpha-forge plugin"
+compatibility: "Designed for Claude Code with cortex plugin"
 metadata:
   author: "Alpha AI Service Pvt Ltd"
   version: "2.0"

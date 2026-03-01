@@ -1156,7 +1156,7 @@ Calculate compliance score:
 
 **Date**: [today's date]
 **Standard**: WCAG 2.1 [AA or AAA based on --level flag]
-**Auditor**: Claude Accessibility Auditor (AlphaForge)
+**Auditor**: Claude Accessibility Auditor (Cortex)
 **Scope**: [All pages / Specific component from $ARGUMENTS]
 **Pages Scanned**: [n]
 **Components Scanned**: [n]

@@ -1,11 +1,11 @@
-# AlphaForge — SDLC Automation Engine
+# Cortex — SDLC Automation Engine
 
 **Forge Production-Ready Software — From Idea to Deployment**
 
-Built by [Alpha AI Service Pvt Ltd](https://alphaaiservice.com)
+Built by [Alpha AI Service Pvt Ltd](https://www.alphaaiservice.com)
 
 ```
-Plugin         : AlphaForge v1.0.0
+Plugin         : Cortex v1.0.0
 Commands       : 37 slash commands
 Agents         : 11 specialized subagents
 Skills         : 9 auto-invoked skills
@@ -44,7 +44,7 @@ Total Lines    : 45,355 lines of AI instructions
 
 ## What Is This?
 
-AlphaForge is a **Claude Code plugin** that automates every phase of the software development lifecycle:
+Cortex is a **Claude Code plugin** that automates every phase of the software development lifecycle:
 
 ```
 Idea -> PRD -> Sprint Plan -> Scaffold -> Build -> Test -> Review -> Ship -> Deploy -> Monitor -> Maintain
@@ -70,7 +70,7 @@ The plugin includes a **fully autonomous build system** (Ralph Loop) that can ta
 
 ## Setup Guide
 
-Complete step-by-step guide to set up the AlphaForge plugin on your machine.
+Complete step-by-step guide to set up the Cortex plugin on your machine.
 
 ### Prerequisites
 
@@ -97,13 +97,13 @@ claude login
 
 ```bash
 # Clone the repository
-git clone https://github.com/alpha-ai-service/alpha-forge.git
+git clone https://github.com/alpha-ai-service/cortex.git
 
 # Or clone to a specific location
-git clone https://github.com/alpha-ai-service/alpha-forge.git ~/claude-plugins/alpha-forge
+git clone https://github.com/alpha-ai-service/cortex.git ~/claude-plugins/cortex
 
 # Enter the directory
-cd alpha-forge
+cd cortex
 
 # Make all hook scripts executable (REQUIRED)
 chmod +x scripts/*.sh
@@ -123,7 +123,7 @@ Edit `~/.claude/settings.json` and add the `plugins.directories` entry:
 {
   "plugins": {
     "directories": [
-      "/absolute/path/to/alpha-forge"
+      "/absolute/path/to/cortex"
     ]
   }
 }
@@ -135,7 +135,7 @@ Edit `~/.claude/settings.json` and add the `plugins.directories` entry:
 {
   "plugins": {
     "directories": [
-      "/Users/yourname/claude-plugins/alpha-forge"
+      "/Users/yourname/claude-plugins/cortex"
     ]
   }
 }
@@ -150,20 +150,20 @@ After saving, **every new Claude Code session** automatically loads all 37 comma
 Load the plugin for a single session using the `--plugin-dir` flag:
 
 ```bash
-claude --plugin-dir /path/to/alpha-forge
+claude --plugin-dir /path/to/cortex
 ```
 
 **Tip:** Create a shell alias so you don't have to type the full path every time:
 
 ```bash
 # Add to ~/.zshrc or ~/.bashrc
-alias alphaforge='claude --plugin-dir /path/to/alpha-forge'
+alias cortex='claude --plugin-dir /path/to/cortex'
 
 # Reload your shell
 source ~/.zshrc
 
 # Now just run:
-alphaforge
+cortex
 ```
 
 #### Option C: Local Marketplace Install
@@ -173,7 +173,7 @@ Install via the built-in marketplace system for a permanent installation without
 ```bash
 # Inside a Claude Code session:
 /plugin marketplace add ./marketplace
-/plugin install alpha-forge@alpha-ai-marketplace
+/plugin install cortex@alpha-ai-marketplace
 ```
 
 After installation, the plugin loads automatically in every session.
@@ -248,7 +248,7 @@ Here's the complete recommended `~/.claude/settings.json` with all options:
   },
   "plugins": {
     "directories": [
-      "/absolute/path/to/alpha-forge"
+      "/absolute/path/to/cortex"
     ]
   }
 }
@@ -305,7 +305,7 @@ To share the plugin across your entire team:
 {
   "plugins": {
     "directories": [
-      "/shared/path/to/alpha-forge"
+      "/shared/path/to/cortex"
     ]
   }
 }
@@ -317,7 +317,7 @@ To share the plugin across your entire team:
 {
   "plugins": {
     "directories": [
-      "/Users/dev-name/claude-plugins/alpha-forge"
+      "/Users/dev-name/claude-plugins/cortex"
     ]
   }
 }
@@ -327,7 +327,7 @@ To share the plugin across your entire team:
 
 ```bash
 /plugin marketplace add alpha-ai-service/claude-plugins
-/plugin install alpha-forge@alpha-ai-service
+/plugin install cortex@alpha-ai-service
 ```
 
 ---
@@ -584,7 +584,7 @@ The plugin enforces these technologies across all projects. Backend language is 
 ## Architecture
 
 ```
-alpha-forge/
+cortex/
 |
 |-- .claude-plugin/
 |   +-- plugin.json                  # Plugin metadata
@@ -867,7 +867,7 @@ When Agent Teams is **not enabled**, all commands automatically fall back to sta
 
 ```bash
 # If installed via marketplace
-/plugin disable alpha-forge@alpha-ai-marketplace
+/plugin disable cortex@alpha-ai-marketplace
 
 # If using settings.json, remove the directory entry:
 # Remove from ~/.claude/settings.json → plugins.directories
@@ -882,7 +882,7 @@ For plugin development and testing:
 
 ```bash
 # Load with --plugin-dir (changes take effect immediately, no reinstall)
-claude --plugin-dir /path/to/alpha-forge
+claude --plugin-dir /path/to/cortex
 
 # Check loaded commands
 /help
@@ -900,7 +900,7 @@ claude --plugin-dir /path/to/alpha-forge
 
 ```bash
 # If installed via marketplace
-/plugin uninstall alpha-forge@alpha-ai-marketplace
+/plugin uninstall cortex@alpha-ai-marketplace
 
 # If using --plugin-dir, just stop passing the flag
 claude  # without --plugin-dir
@@ -913,7 +913,7 @@ claude  # without --plugin-dir
 ### Plugin not loading / No banner on startup
 
 1. **Check the path is absolute** in `~/.claude/settings.json` — relative paths and `~` don't work
-2. **Verify plugin.json exists**: `ls /path/to/alpha-forge/.claude-plugin/plugin.json`
+2. **Verify plugin.json exists**: `ls /path/to/cortex/.claude-plugin/plugin.json`
 3. **Restart Claude Code** — plugins load at session start, not mid-session
 4. **Check settings.json is valid JSON**: `cat ~/.claude/settings.json | python3 -m json.tool`
 
@@ -995,4 +995,4 @@ Copyright (c) 2025-2026 Alpha AI Service Pvt Ltd
 ---
 
 **Built by Alpha AI Service Pvt Ltd** | [alphaaiservice.com](https://alphaaiservice.com)
-# alpha-forge
+# cortex

@@ -2,7 +2,7 @@
 name: alpha-architecture
 description: "ALWAYS auto-invoked on ANY code writing task. Enforces Alpha AI's CORE standards (layered architecture, JWT+HTTP-Only Cookies, MySQL+ORM, linting, type checking, testing) across all backend languages: Python/FastAPI, Node.js/NestJS, Java/Spring Boot. CONDITIONAL standards (MongoDB, Redis, Razorpay, Meilisearch, Mobile, GenAI, etc.) are enforced ONLY when the project uses those technologies. Detects backend language + project context from code, dependencies, and PRD before applying rules."
 license: "Proprietary — Alpha AI Service Pvt Ltd"
-compatibility: "Designed for Claude Code with alpha-forge plugin"
+compatibility: "Designed for Claude Code with cortex plugin"
 metadata:
   author: "Alpha AI Service Pvt Ltd"
   version: "2.0"

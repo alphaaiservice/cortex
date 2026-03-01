@@ -2,7 +2,7 @@
 name: code-review
 description: "Auto-invoked when Claude performs code review tasks. Provides structured 6-dimension review methodology (correctness, security, performance, readability, testing, architecture) with severity levels from critical to praise."
 license: "Proprietary — Alpha AI Service Pvt Ltd"
-compatibility: "Designed for Claude Code with alpha-forge plugin"
+compatibility: "Designed for Claude Code with cortex plugin"
 metadata:
   author: "Alpha AI Service Pvt Ltd"
   version: "2.0"

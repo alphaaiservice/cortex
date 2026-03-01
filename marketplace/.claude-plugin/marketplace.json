@@ -11,17 +11,17 @@
   },
   "plugins": [
     {
-      "name": "alpha-forge",
+      "name": "cortex",
       "version": "1.0.0",
-      "description": "AlphaForge — SDLC Automation Engine. 37 commands, 11 agents, 9 skills, 6 hooks. Forge production-ready software.",
-      "longDescription": "AlphaForge automates the entire software development lifecycle. Generate a PRD from an idea, scaffold projects, build autonomously with self-healing, run multi-agent code reviews, generate tests, deploy with safety checks, and maintain with dependency updates. Supports 3 backend languages: Python/FastAPI, Node.js/NestJS, Java/Spring Boot. Enforces production-grade engineering standards: JWT HTTP-Only Cookies, MySQL+ORM, MongoDB, Redis, React Native, Next.js, GenAI (LiteLLM/Vercel AI/Spring AI + RAG), MCP/A2A protocols. Includes SVG brand identity generation.",
+      "description": "Cortex — SDLC Automation Engine. 37 commands, 11 agents, 9 skills, 6 hooks. Forge production-ready software.",
+      "longDescription": "Cortex automates the entire software development lifecycle. Generate a PRD from an idea, scaffold projects, build autonomously with self-healing, run multi-agent code reviews, generate tests, deploy with safety checks, and maintain with dependency updates. Supports 3 backend languages: Python/FastAPI, Node.js/NestJS, Java/Spring Boot. Enforces production-grade engineering standards: JWT HTTP-Only Cookies, MySQL+ORM, MongoDB, Redis, React Native, Next.js, GenAI (LiteLLM/Vercel AI/Spring AI + RAG), MCP/A2A protocols. Includes SVG brand identity generation.",
       "author": {
         "name": "Alpha AI Service Pvt Ltd",
         "url": "https://alphaaiservice.com"
       },
       "license": "MIT",
-      "repository": "https://github.com/alpha-ai-service/alpha-forge",
-      "homepage": "https://alphaaiservice.com/alpha-forge",
+      "repository": "https://github.com/alpha-ai-service/cortex",
+      "homepage": "https://alphaaiservice.com/cortex",
       "keywords": [
         "sdlc",
         "devops",

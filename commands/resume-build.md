@@ -39,19 +39,19 @@ CASE 1: Agent Teams NOW enabled + State has build_mode "sequential" (or missing)
   → UPGRADE to parallel mode!
   → Announce: "⚡ UPGRADE DETECTED — Agent Teams is now enabled! Upgrading from sequential to parallel mode for remaining phases."
   → Call TeamCreate tool:
-      team_name = "alpha-forge"
+      team_name = "cortex"
       description = "Alpha AI auto-build team — resuming {project_name} from Phase {current_phase}"
   → Spawn teammates for remaining work (see Step 3a below)
   → Update AUTO_BUILD_STATE.json:
       "build_mode": "parallel"
       "agent_teams_enabled": true
-      "team_name": "alpha-forge"
+      "team_name": "cortex"
       "active_teammates": [list of spawned teammate names]
       "upgraded_from_sequential": true
       "upgrade_point": "{current_phase}"
 
 CASE 2: Agent Teams enabled + State already has build_mode "parallel":
-  → Check if team still exists at ~/.claude/teams/alpha-forge/
+  → Check if team still exists at ~/.claude/teams/cortex/
   → If team exists: reconnect to existing teammates
   → If team gone: recreate team + spawn new teammates
   → Announce: "⚡ PARALLEL MODE — Reconnecting to Agent Teams build squad..."
@@ -81,7 +81,7 @@ STEP 1: Spawn teammates IMMEDIATELY after TeamCreate (do NOT do anything else fi
 
 Agent tool call #1:
   name = "viktor"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Backend lead: models, migrations, services, repos"
@@ -94,7 +94,7 @@ End each task with: '🇷🇺 Viktor — Backend Lead — Done! [summary of file
 
 Agent tool call #2:
   name = "marcus"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "API engineer: routes, controllers, middleware"
@@ -108,7 +108,7 @@ End each task with: '🇺🇸 Marcus — API Engineer — Done! [summary]'"
 
 Agent tool call #3:
   name = "liam"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "QA lead: test fixes, coverage improvement, lint cleanup"
@@ -122,7 +122,7 @@ End each task with: '🇮🇪 Liam — QA Lead — Done! [summary]'"
 
 Agent tool call #4 (if auth/security work remains):
   name = "yuki"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "Auth engineer: JWT, OAuth, RBAC, security"
@@ -136,7 +136,7 @@ End each task with: '🇯🇵 Yuki — Auth Engineer — Done! [summary]'"
 
 Agent tool call #5 (if CI/CD, Docker, deployment work remains):
   name = "oleksiy"
-  team_name = "alpha-forge"
+  team_name = "cortex"
   subagent_type = "general-purpose"
   mode = "bypassPermissions"
   description = "DevOps lead: Docker, CI/CD, deployment"

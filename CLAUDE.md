@@ -1,8 +1,8 @@
-# CLAUDE.md — AlphaForge Plugin Development Context
+# CLAUDE.md — Cortex Plugin Development Context
 
 ## What Is This Project?
 
-This is a **Claude Code Plugin** called `alpha-forge` (AlphaForge) built by Alpha AI Service Pvt Ltd. It automates the entire software development lifecycle — from project scaffolding to autonomous product building — with zero human intervention.
+This is a **Claude Code Plugin** called `cortex` (Cortex) built by Alpha AI Service Pvt Ltd. It automates the entire software development lifecycle — from project scaffolding to autonomous product building — with zero human intervention.
 
 The plugin enforces Alpha AI's engineering standards across **3 backend languages**: Python/FastAPI, Node.js/NestJS, Java/Spring Boot — plus JWT+HTTP-Only Cookies (NEVER localStorage/sessionStorage), MySQL+ORM, MongoDB, Redis, and strict layer segregation.
 
@@ -15,7 +15,7 @@ This is NOT a regular Python/Node project. It is a **Claude Code Plugin** — a 
 ### Directory Structure
 
 ```
-alpha-forge/
+cortex/
 │
 ├── .claude-plugin/
 │   └── plugin.json              # Plugin metadata (name, version, author)
@@ -421,14 +421,14 @@ Edit the DATABASE USAGE PATTERNS section in `commands/auto-build.md` and the Dat
 
 ```bash
 # Development mode (fast iteration, no install needed)
-claude --plugin-dir ~/claude-plugins/alpha-forge
+claude --plugin-dir ~/claude-plugins/cortex
 
 # Install via marketplace
 /plugin marketplace add ./marketplace
-/plugin install alpha-forge@alpha-ai-marketplace
+/plugin install cortex@alpha-ai-marketplace
 
 # Uninstall
-/plugin uninstall alpha-forge@alpha-ai-marketplace
+/plugin uninstall cortex@alpha-ai-marketplace
 
 # Check loaded commands
 /help

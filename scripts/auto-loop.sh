@@ -1,6 +1,6 @@
 #!/bin/bash
 #====================================================================
-# AlphaForge — Autonomous Build Loop Runner
+# Cortex — Autonomous Build Loop Runner
 # 
 # This script implements the Ralph Wiggum pattern for autonomous
 # product development. It runs Claude Code in a loop until the
@@ -26,7 +26,7 @@ set -euo pipefail
 MAX_ITERATIONS=${3:-100}
 COMPLETION_PROMISE="PRODUCT_COMPLETE"
 ITERATION=0
-LOG_DIR=".alpha-forge/logs"
+LOG_DIR=".cortex/logs"
 STATE_FILE="AUTO_BUILD_STATE.json"
 MONITOR_MODE=false
 
@@ -88,7 +88,7 @@ fi
 echo -e "${CYAN}"
 echo "╔══════════════════════════════════════════════════════════╗"
 echo "║                                                          ║"
-echo "║   ⚒  AlphaForge — Autonomous Product Builder              ║"
+echo "║   ⚒  Cortex — Autonomous Product Builder              ║"
 echo "║   ──────────────────────────────────────────────         ║"
 echo "║   Mode:           Fully Autonomous                       ║"
 echo "║   Max Iterations:  $MAX_ITERATIONS                              ║"

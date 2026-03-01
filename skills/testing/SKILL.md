@@ -2,7 +2,7 @@
 name: testing
 description: "Auto-invoked when Claude works on testing tasks — test generation, coverage analysis, or test strategy. Provides test pyramid guidance, AAA structure patterns, naming conventions, mocking guidelines, and coverage targets (>80% overall, >95% critical paths, 100% new code)."
 license: "Proprietary — Alpha AI Service Pvt Ltd"
-compatibility: "Designed for Claude Code with alpha-forge plugin"
+compatibility: "Designed for Claude Code with cortex plugin"
 metadata:
   author: "Alpha AI Service Pvt Ltd"
   version: "2.0"
