@@ -18,7 +18,8 @@ This is NOT a regular Python/Node project. It is a **Claude Code Plugin** — a 
 cortex/
 │
 ├── .claude-plugin/
-│   └── plugin.json              # Plugin metadata (name, version, author)
+│   ├── plugin.json              # Plugin metadata (name, version, author)
+│   └── marketplace.json         # Marketplace catalog (for distribution via alphaaiservice/cortex)
 │
 ├── commands/                     # SLASH COMMANDS — user invokes with /command-name (37 total)
 │   │
@@ -128,10 +129,6 @@ cortex/
 │   ├── auto-build-stop-hook.sh  # Stop hook: prevents exit during auto-build
 │   ├── session-context.sh       # SessionStart hook: loads project context
 │   └── safe-bash-check.sh       # PreToolUse hook: warns on dangerous commands
-│
-├── marketplace/                  # LOCAL MARKETPLACE (for distribution)
-│   └── .claude-plugin/
-│       └── marketplace.json
 │
 ├── README.md
 ├── LICENSE
@@ -424,11 +421,11 @@ Edit the DATABASE USAGE PATTERNS section in `commands/auto-build.md` and the Dat
 claude --plugin-dir ~/claude-plugins/cortex
 
 # Install via marketplace
-/plugin marketplace add ./marketplace
-/plugin install cortex@alpha-ai-marketplace
+/plugin marketplace add alphaaiservice/cortex
+/plugin install cortex@alphaai
 
 # Uninstall
-/plugin uninstall cortex@alpha-ai-marketplace
+/plugin uninstall cortex@alphaai
 
 # Check loaded commands
 /help

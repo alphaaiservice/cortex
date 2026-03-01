@@ -97,10 +97,10 @@ claude login
 
 ```bash
 # Clone the repository
-git clone https://github.com/alpha-ai-service/cortex.git
+git clone https://github.com/alphaaiservice/cortex.git
 
 # Or clone to a specific location
-git clone https://github.com/alpha-ai-service/cortex.git ~/claude-plugins/cortex
+git clone https://github.com/alphaaiservice/cortex.git ~/claude-plugins/cortex
 
 # Enter the directory
 cd cortex
@@ -172,8 +172,8 @@ Install via the built-in marketplace system for a permanent installation without
 
 ```bash
 # Inside a Claude Code session:
-/plugin marketplace add ./marketplace
-/plugin install cortex@alpha-ai-marketplace
+/plugin marketplace add alphaaiservice/cortex
+/plugin install cortex@alphaai
 ```
 
 After installation, the plugin loads automatically in every session.
@@ -326,8 +326,8 @@ To share the plugin across your entire team:
 **Option C: GitHub Marketplace** (when published):
 
 ```bash
-/plugin marketplace add alpha-ai-service/claude-plugins
-/plugin install cortex@alpha-ai-service
+/plugin marketplace add alphaaiservice/cortex
+/plugin install cortex@alphaai
 ```
 
 ---
@@ -587,7 +587,8 @@ The plugin enforces these technologies across all projects. Backend language is 
 cortex/
 |
 |-- .claude-plugin/
-|   +-- plugin.json                  # Plugin metadata
+|   |-- plugin.json                  # Plugin metadata
+|   +-- marketplace.json             # Marketplace catalog for distribution
 |
 |-- commands/                        # 37 SLASH COMMANDS
 |   |
@@ -679,10 +680,6 @@ cortex/
 |   |-- auto-build-stop-hook.sh      # Prevents exit during auto-build
 |   |-- session-context.sh           # Session initialization
 |   +-- safe-bash-check.sh           # Dangerous command detection
-|
-|-- marketplace/
-|   +-- .claude-plugin/
-|       +-- marketplace.json         # Marketplace distribution config
 |
 |-- .gitignore                       # Git ignore rules
 |-- CLAUDE.md                        # Plugin development context
@@ -867,7 +864,7 @@ When Agent Teams is **not enabled**, all commands automatically fall back to sta
 
 ```bash
 # If installed via marketplace
-/plugin disable cortex@alpha-ai-marketplace
+/plugin disable cortex@alphaai
 
 # If using settings.json, remove the directory entry:
 # Remove from ~/.claude/settings.json → plugins.directories
@@ -900,7 +897,7 @@ claude --plugin-dir /path/to/cortex
 
 ```bash
 # If installed via marketplace
-/plugin uninstall cortex@alpha-ai-marketplace
+/plugin uninstall cortex@alphaai
 
 # If using --plugin-dir, just stop passing the flag
 claude  # without --plugin-dir

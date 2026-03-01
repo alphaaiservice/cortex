@@ -1,8 +1,9 @@
 {
   "name": "cortex",
   "description": "Cortex — SDLC Automation Engine. 37 commands, 11 agents, 9 skills, 6 hooks. Forge production-ready software from idea to deployment with zero human intervention.",
+  "version": "1.0.0",
   "author": {
     "name": "Alpha AI Service Pvt Ltd",
-    "email": "plugins@alphaaiservice.com"
+    "email": "info@alphaaiservice.com"
   }
 }

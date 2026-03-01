@@ -1,0 +1,53 @@
+{
+  "name": "alphaai",
+  "owner": {
+    "name": "Alpha AI Service Pvt Ltd",
+    "email": "info@alphaaiservice.com"
+  },
+  "metadata": {
+    "description": "Official Claude Code plugin marketplace by Alpha AI Service Pvt Ltd",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "cortex",
+      "source": "./",
+      "description": "Cortex — SDLC Automation Engine. 37 commands, 11 agents, 9 skills, 6 hooks. Forge production-ready software from idea to deployment.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Alpha AI Service Pvt Ltd",
+        "email": "info@alphaaiservice.com"
+      },
+      "license": "MIT",
+      "repository": "https://github.com/alphaaiservice/cortex",
+      "homepage": "https://alphaaiservice.com/cortex",
+      "keywords": [
+        "sdlc",
+        "devops",
+        "autonomous-build",
+        "code-review",
+        "testing",
+        "deployment",
+        "fastapi",
+        "nestjs",
+        "spring-boot",
+        "genai",
+        "mcp",
+        "a2a",
+        "agent-teams",
+        "ci-cd",
+        "security-scan",
+        "project-scaffold",
+        "branding"
+      ],
+      "category": "Development Tools",
+      "tags": [
+        "sdlc-automation",
+        "code-quality",
+        "devops",
+        "ai-agents",
+        "testing"
+      ]
+    }
+  ]
+}
