@@ -23,7 +23,7 @@ set -euo pipefail
 
 # ======================== CONFIGURATION ========================
 
-MAX_ITERATIONS=${3:-100}
+MAX_ITERATIONS=100
 COMPLETION_PROMISE="PRODUCT_COMPLETE"
 ITERATION=0
 LOG_DIR=".cortex/logs"
@@ -40,10 +40,32 @@ NC='\033[0m' # No Color
 
 # ======================== ARGUMENT PARSING ========================
 
-PRD_INPUT="${1:-}"
+PRD_INPUT=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --max-iterations)
+            shift
+            MAX_ITERATIONS="${1:-100}"
+            ;;
+        --monitor)
+            MONITOR_MODE=true
+            ;;
+        -*)
+            echo -e "${RED}Unknown option: $1${NC}"
+            exit 1
+            ;;
+        *)
+            if [ -z "$PRD_INPUT" ]; then
+                PRD_INPUT="$1"
+            fi
+            ;;
+    esac
+    shift
+done
 
 if [ -z "$PRD_INPUT" ]; then
-    echo -e "${RED}❌ Error: No input provided${NC}"
+    echo -e "${RED}Error: No input provided${NC}"
     echo ""
     echo "Usage:"
     echo "  ./auto-loop.sh \"Product description here\""
@@ -52,21 +74,6 @@ if [ -z "$PRD_INPUT" ]; then
     echo "  ./auto-loop.sh ./prd.md --max-iterations 50 --monitor"
     exit 1
 fi
-
-# Parse optional flags
-for arg in "$@"; do
-    case $arg in
-        --max-iterations)
-            shift
-            MAX_ITERATIONS="${1:-100}"
-            shift
-            ;;
-        --monitor)
-            MONITOR_MODE=true
-            shift
-            ;;
-    esac
-done
 
 # ======================== SETUP ========================
 
@@ -118,7 +125,7 @@ $PRD_CONTENT
 
 ## Decision-Making Rules (when ambiguous)
 - Framework: Use the most popular/stable option for the stack
-- Database: PostgreSQL for relational, MongoDB for document-based
+- Database: MySQL for relational, MongoDB for document-based
 - Auth: JWT with refresh tokens
 - Styling: Tailwind CSS for frontend
 - Testing: Jest/Vitest for JS, Pytest for Python
@@ -256,7 +263,7 @@ while [ "$ITERATION" -lt "$MAX_ITERATIONS" ]; do
     # Using --print for non-interactive mode, --output-format for parseable output
     set +e
     CLAUDE_OUTPUT=$(claude --print \
-        --allowedTools "Read,Write,Bash,Glob,Grep,Task" \
+        --allowedTools "Read,Write,Edit,Bash,Glob,Grep,Agent,TodoWrite" \
         --max-turns 200 \
         "$BUILD_PROMPT" 2>&1)
     EXIT_CODE=$?

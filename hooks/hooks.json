@@ -30,7 +30,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'INPUT=$(cat); FILE=$(echo \"$INPUT\" | jq -r \".tool_input.file_path // empty\" 2>/dev/null); if [ -n \"$FILE\" ] && echo \"$FILE\" | grep -qE \"\\.py$\"; then if command -v ruff &>/dev/null; then ruff format \"$FILE\" 2>/dev/null && ruff check --fix \"$FILE\" 2>/dev/null && echo \"Auto-formatted: $FILE\"; elif command -v black &>/dev/null; then black --quiet \"$FILE\" 2>/dev/null && echo \"Auto-formatted: $FILE\"; fi; fi'",
+            "command": "bash -c 'INPUT=$(cat); FILE=$(echo \"$INPUT\" | jq -r \".tool_input.file_path // empty\" 2>/dev/null); if [ -z \"$FILE\" ]; then exit 0; fi; if echo \"$FILE\" | grep -qE \"\\.py$\"; then if command -v ruff &>/dev/null; then ruff format \"$FILE\" 2>/dev/null && ruff check --fix \"$FILE\" 2>/dev/null && echo \"Auto-formatted (Python): $FILE\"; elif command -v black &>/dev/null; then black --quiet \"$FILE\" 2>/dev/null && echo \"Auto-formatted (Python): $FILE\"; fi; elif echo \"$FILE\" | grep -qE \"\\.(ts|tsx|js|jsx)$\"; then if command -v prettier &>/dev/null; then prettier --write \"$FILE\" 2>/dev/null && echo \"Auto-formatted (JS/TS): $FILE\"; elif [ -f node_modules/.bin/prettier ]; then node_modules/.bin/prettier --write \"$FILE\" 2>/dev/null && echo \"Auto-formatted (JS/TS): $FILE\"; fi; elif echo \"$FILE\" | grep -qE \"\\.java$\"; then if command -v google-java-format &>/dev/null; then google-java-format --replace \"$FILE\" 2>/dev/null && echo \"Auto-formatted (Java): $FILE\"; fi; fi'",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'INPUT=$(cat); FILE=$(echo \"$INPUT\" | jq -r \".tool_input.file_path // empty\" 2>/dev/null); if [ -z \"$FILE\" ]; then exit 0; fi; if echo \"$FILE\" | grep -qE \"\\.py$\"; then if command -v ruff &>/dev/null; then ruff format \"$FILE\" 2>/dev/null && ruff check --fix \"$FILE\" 2>/dev/null && echo \"Auto-formatted (Python): $FILE\"; elif command -v black &>/dev/null; then black --quiet \"$FILE\" 2>/dev/null && echo \"Auto-formatted (Python): $FILE\"; fi; elif echo \"$FILE\" | grep -qE \"\\.(ts|tsx|js|jsx)$\"; then if command -v prettier &>/dev/null; then prettier --write \"$FILE\" 2>/dev/null && echo \"Auto-formatted (JS/TS): $FILE\"; elif [ -f node_modules/.bin/prettier ]; then node_modules/.bin/prettier --write \"$FILE\" 2>/dev/null && echo \"Auto-formatted (JS/TS): $FILE\"; fi; elif echo \"$FILE\" | grep -qE \"\\.java$\"; then if command -v google-java-format &>/dev/null; then google-java-format --replace \"$FILE\" 2>/dev/null && echo \"Auto-formatted (Java): $FILE\"; fi; fi'",
             "timeout": 15
           }
         ]
@@ -66,8 +76,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'exit 0'",
-            "timeout": 5
+            "command": "bash -c 'INPUT=$(cat); TASK_OUTPUT=$(echo \"$INPUT\" | jq -r \".task_output // empty\" 2>/dev/null); TASK_NAME=$(echo \"$INPUT\" | jq -r \".task_name // empty\" 2>/dev/null); ISSUES=\"\"; if [ -n \"$TASK_OUTPUT\" ]; then if echo \"$TASK_OUTPUT\" | grep -qiE \"TODO|FIXME|HACK|XXX\"; then ISSUES=\"${ISSUES}Task output contains unresolved TODO/FIXME markers. \"; fi; if echo \"$TASK_OUTPUT\" | grep -qiE \"skip(ped)?.*test|test.*skip\"; then ISSUES=\"${ISSUES}Tests appear to be skipped. \"; fi; if echo \"$TASK_OUTPUT\" | grep -qiE \"password|secret|api.key\" | grep -qivE \"env|config|example\"; then ISSUES=\"${ISSUES}Possible hardcoded secrets detected. \"; fi; fi; if [ -n \"$ISSUES\" ]; then echo \"Quality gate: ${ISSUES}Task: ${TASK_NAME}. Please address these issues before marking complete.\" >&2; exit 2; fi; exit 0'",
+            "timeout": 10
           }
         ]
       }
