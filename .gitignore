@@ -42,3 +42,7 @@ logs/
 
 # Claude Code session artifacts
 .claude/
+
+# Cortex auto-build artifacts
+AUTO_BUILD_STATE.json
+.cortex/

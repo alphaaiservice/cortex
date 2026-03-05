@@ -23,7 +23,7 @@ set -euo pipefail
 
 # ======================== CONFIGURATION ========================
 
-MAX_ITERATIONS=${3:-100}
+MAX_ITERATIONS=100
 COMPLETION_PROMISE="PRODUCT_COMPLETE"
 ITERATION=0
 LOG_DIR=".cortex/logs"
@@ -40,10 +40,32 @@ NC='\033[0m' # No Color
 
 # ======================== ARGUMENT PARSING ========================
 
-PRD_INPUT="${1:-}"
+PRD_INPUT=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --max-iterations)
+            shift
+            MAX_ITERATIONS="${1:-100}"
+            ;;
+        --monitor)
+            MONITOR_MODE=true
+            ;;
+        -*)
+            echo -e "${RED}Unknown option: $1${NC}"
+            exit 1
+            ;;
+        *)
+            if [ -z "$PRD_INPUT" ]; then
+                PRD_INPUT="$1"
+            fi
+            ;;
+    esac
+    shift
+done
 
 if [ -z "$PRD_INPUT" ]; then
-    echo -e "${RED}❌ Error: No input provided${NC}"
+    echo -e "${RED}Error: No input provided${NC}"
     echo ""
     echo "Usage:"
     echo "  ./auto-loop.sh \"Product description here\""
@@ -52,21 +74,6 @@ if [ -z "$PRD_INPUT" ]; then
     echo "  ./auto-loop.sh ./prd.md --max-iterations 50 --monitor"
     exit 1
 fi
-
-# Parse optional flags
-for arg in "$@"; do
-    case $arg in
-        --max-iterations)
-            shift
-            MAX_ITERATIONS="${1:-100}"
-            shift
-            ;;
-        --monitor)
-            MONITOR_MODE=true
-            shift
-            ;;
-    esac
-done
 
 # ======================== SETUP ========================
 
@@ -118,7 +125,7 @@ $PRD_CONTENT
 
 ## Decision-Making Rules (when ambiguous)
 - Framework: Use the most popular/stable option for the stack
-- Database: PostgreSQL for relational, MongoDB for document-based
+- Database: MySQL for relational, MongoDB for document-based
 - Auth: JWT with refresh tokens
 - Styling: Tailwind CSS for frontend
 - Testing: Jest/Vitest for JS, Pytest for Python
@@ -161,14 +168,45 @@ check_rate_limit() {
 
 CONSECUTIVE_ERRORS=0
 MAX_CONSECUTIVE_ERRORS=5
+ITERATION_TIMEOUT=1800  # 30 minutes per iteration
+LAST_PROGRESS=0
+STALL_COUNT=0
+MAX_STALL_COUNT=3  # Max iterations with no progress change
 
 check_circuit_breaker() {
     if [ "$CONSECUTIVE_ERRORS" -ge "$MAX_CONSECUTIVE_ERRORS" ]; then
-        echo -e "${RED}🔴 CIRCUIT BREAKER TRIGGERED: $MAX_CONSECUTIVE_ERRORS consecutive errors${NC}"
+        echo -e "${RED}CIRCUIT BREAKER TRIGGERED: $MAX_CONSECUTIVE_ERRORS consecutive errors${NC}"
         echo -e "${RED}   Stopping to prevent runaway costs.${NC}"
         echo -e "${YELLOW}   Check logs in $LOG_DIR for details.${NC}"
         generate_final_report "circuit_breaker"
         exit 1
+    fi
+}
+
+# Detect if build is making progress or stuck in a loop
+check_stall_detection() {
+    if [ -f "$STATE_FILE" ]; then
+        CURRENT_PROGRESS=$(jq -r '.completion_percentage // 0' "$STATE_FILE" 2>/dev/null || echo "0")
+        if [ "$CURRENT_PROGRESS" = "$LAST_PROGRESS" ]; then
+            STALL_COUNT=$((STALL_COUNT + 1))
+            if [ "$STALL_COUNT" -ge "$MAX_STALL_COUNT" ]; then
+                echo -e "${YELLOW}STALL DETECTED: No progress for $MAX_STALL_COUNT iterations (stuck at ${CURRENT_PROGRESS}%)${NC}"
+                echo -e "${YELLOW}   Injecting recovery hint into next prompt...${NC}"
+                # Reset stall counter but add recovery context to prompt
+                STALL_COUNT=0
+                BUILD_PROMPT="${BUILD_PROMPT}
+
+## STALL RECOVERY
+Progress has been stuck at ${CURRENT_PROGRESS}% for multiple iterations. You may be in a loop.
+- Read AUTO_BUILD_STATE.json event_log to see what you tried before
+- Try a DIFFERENT approach than your last attempt
+- If a task is blocking, skip it (add to blockers) and move to the next phase
+- Run: bash ${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}/scripts/recover-state.sh to check state integrity"
+            fi
+        else
+            STALL_COUNT=0
+            LAST_PROGRESS="$CURRENT_PROGRESS"
+        fi
     fi
 }
 
@@ -251,21 +289,48 @@ while [ "$ITERATION" -lt "$MAX_ITERATIONS" ]; do
     
     # Circuit breaker check
     check_circuit_breaker
-    
-    # Run Claude Code with the build prompt
+
+    # Stall detection — check if progress is advancing
+    check_stall_detection
+
+    # Run Claude Code with the build prompt (with per-iteration timeout)
     # Using --print for non-interactive mode, --output-format for parseable output
     set +e
-    CLAUDE_OUTPUT=$(claude --print \
-        --allowedTools "Read,Write,Bash,Glob,Grep,Task" \
+    ITER_START=$(date +%s)
+    CLAUDE_OUTPUT=$(timeout "$ITERATION_TIMEOUT" claude --print \
+        --allowedTools "Read,Write,Edit,Bash,Glob,Grep,Agent,TodoWrite" \
         --max-turns 200 \
         "$BUILD_PROMPT" 2>&1)
     EXIT_CODE=$?
+    ITER_ELAPSED=$(( $(date +%s) - ITER_START ))
     set -e
+
+    # Check if iteration was killed by timeout
+    if [ "$EXIT_CODE" -eq 124 ]; then
+        echo -e "${YELLOW}  Iteration $ITERATION timed out after ${ITERATION_TIMEOUT}s${NC}"
+        echo -e "${YELLOW}  Auto-committing progress and continuing...${NC}"
+        if git rev-parse --is-inside-work-tree &>/dev/null; then
+            DIRTY=$(git status --short 2>/dev/null | wc -l | tr -d ' ')
+            if [ "$DIRTY" -gt 0 ]; then
+                git add -A 2>/dev/null
+                git commit -m "checkpoint: auto-save after iteration $ITERATION timeout" 2>/dev/null || true
+            fi
+        fi
+    fi
     
     # Log output
     echo "$CLAUDE_OUTPUT" > "$LOG_FILE"
     echo "Exit code: $EXIT_CODE" >> "$LOG_FILE"
-    
+
+    # Append event to state file event_log
+    if [ -f "$STATE_FILE" ]; then
+        PHASE=$(jq -r '.current_phase // "unknown"' "$STATE_FILE" 2>/dev/null || echo "unknown")
+        PCT=$(jq -r '.completion_percentage // 0' "$STATE_FILE" 2>/dev/null || echo "0")
+        jq --arg ts "$(date -Iseconds)" --arg iter "$ITERATION" --arg ec "$EXIT_CODE" --arg phase "$PHASE" --arg pct "$PCT" \
+            '.event_log = (.event_log // []) + [{"event": "iteration_complete", "timestamp": $ts, "iteration": ($iter | tonumber), "exit_code": ($ec | tonumber), "phase": $phase, "completion": $pct}]' \
+            "$STATE_FILE" > "${STATE_FILE}.tmp" 2>/dev/null && mv "${STATE_FILE}.tmp" "$STATE_FILE"
+    fi
+
     # Check for completion promise
     if echo "$CLAUDE_OUTPUT" | grep -q "<promise>$COMPLETION_PROMISE</promise>"; then
         echo ""

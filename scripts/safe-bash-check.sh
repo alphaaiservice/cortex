@@ -9,38 +9,54 @@ if [ -z "$COMMAND" ]; then
   exit 0
 fi
 
-# List of dangerous patterns to warn about
-DANGEROUS_PATTERNS=(
+# Critical patterns — BLOCK these (exit 2)
+CRITICAL_PATTERNS=(
   "rm -rf /"
   "rm -rf ~"
   "rm -rf \*"
-  "DROP DATABASE"
-  "DROP TABLE"
-  "TRUNCATE TABLE"
-  "DELETE FROM .* WHERE 1"
   ":(){ :|:& };:"
   "mkfs\."
   "dd if="
   "> /dev/sd"
-  "chmod -R 777"
-  "curl .* | bash"
-  "wget .* | bash"
   "eval \$(curl"
 )
 
-for pattern in "${DANGEROUS_PATTERNS[@]}"; do
+# Warning patterns — warn but allow (exit 0)
+WARNING_PATTERNS=(
+  "DROP DATABASE"
+  "DROP TABLE"
+  "TRUNCATE TABLE"
+  "DELETE FROM .* WHERE 1"
+  "chmod -R 777"
+  "curl .* | bash"
+  "wget .* | bash"
+)
+
+# Check critical patterns first — block execution
+for pattern in "${CRITICAL_PATTERNS[@]}"; do
   if echo "$COMMAND" | grep -qiE "$pattern"; then
-    echo "⚠️  SAFETY WARNING: Potentially dangerous command detected!" >&2
+    echo "BLOCKED: Critically dangerous command detected!" >&2
     echo "Pattern matched: $pattern" >&2
     echo "Command: $COMMAND" >&2
-    echo "Please review before allowing." >&2
-    exit 0  # Don't block, just warn
+    echo "This command has been blocked for safety." >&2
+    exit 2  # Block the action
   fi
 done
 
-# Check for production database connections
+# Check warning patterns — warn but allow
+for pattern in "${WARNING_PATTERNS[@]}"; do
+  if echo "$COMMAND" | grep -qiE "$pattern"; then
+    echo "WARNING: Potentially dangerous command detected." >&2
+    echo "Pattern matched: $pattern" >&2
+    echo "Command: $COMMAND" >&2
+    echo "Please review before allowing." >&2
+    exit 0  # Warn only
+  fi
+done
+
+# Check for production database connections — warn but allow
 if echo "$COMMAND" | grep -qiE "(production|prod)\." && echo "$COMMAND" | grep -qiE "(psql|mysql|mongo|redis-cli)"; then
-  echo "⚠️  WARNING: Command appears to connect to a production database!" >&2
+  echo "WARNING: Command appears to connect to a production database!" >&2
   echo "Command: $COMMAND" >&2
   exit 0
 fi
