@@ -5,5 +5,23 @@
   "author": {
     "name": "Alpha AI Service Pvt Ltd",
     "email": "info@alphaaiservice.com"
-  }
+  },
+  "homepage": "https://www.alphaaiservice.com/cortex",
+  "repository": "https://github.com/alphaaiservice/cortex",
+  "license": "MIT",
+  "keywords": [
+    "sdlc",
+    "autonomous-build",
+    "code-review",
+    "devops",
+    "ci-cd",
+    "testing",
+    "security-scan",
+    "fastapi",
+    "nestjs",
+    "spring-boot",
+    "genai",
+    "mcp",
+    "a2a"
+  ]
 }
