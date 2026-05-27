@@ -30,7 +30,9 @@ cortex/
 │   ├── sprint-plan.md           # /sprint-plan — Break PRD into sprint tasks with estimates
 │   │
 │   │  # ── Project Setup ──
-│   ├── init-project.md          # /init-project — Scaffold new OR upgrade existing FastAPI project
+│   ├── init-project.md          # /init-project — Scaffold new OR upgrade existing FastAPI/NestJS/Spring Boot project
+│   ├── init-mcp-server.md       # /init-mcp-server — Scaffold standalone MCP server (Python or TypeScript)
+│   ├── init-claude-plugin.md    # /init-claude-plugin — Scaffold a Claude Code plugin (dogfoods Cortex's own patterns)
 │   ├── analyze-project.md       # /analyze-project — Scan existing codebase, map architecture
 │   ├── gap-analysis.md          # /gap-analysis — Compare existing app vs Alpha AI 36 standards
 │   ├── seed-data.md             # /seed-data — Generate realistic seed/test data factories

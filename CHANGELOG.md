@@ -5,6 +5,66 @@ All notable changes to the Cortex plugin are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] — 2026-05-27
+
+### Added — Cortex can now scaffold MCP servers and Claude plugins
+
+Closes two structural gaps a user surfaced: Cortex previously had zero
+support for building standalone MCP servers or Claude Code plugins. It
+covered MCP only as an embedded standard inside auto-built apps; it
+covered plugins not at all. Cortex now self-bootstraps both project
+types — eating its own dogfood for plugin development.
+
+**New commands (2):**
+- **`/init-mcp-server`** — scaffold a standalone MCP server project.
+  Supports `--lang=python` (official `mcp` SDK) or `--lang=typescript`
+  (`@modelcontextprotocol/sdk`). Transports: stdio (default), http,
+  sse. Flags for `--with-tools`, `--with-prompts`, `--with-resources`.
+  Generates complete project with pyproject.toml/package.json, server
+  skeleton, example primitives, in-memory test client, README with
+  Claude Desktop + Claude Code config snippets, GitHub Actions, and
+  publishing instructions for PyPI/npm.
+  Distinguishes standalone MCP servers (this command) from embedded
+  ones (use /auto-build or /retrofit for those — they live inside the
+  host app under `app/ai/mcp/`).
+
+- **`/init-claude-plugin`** — scaffold a Claude Code plugin with
+  Cortex's own structure as the template. Flags: `--with-commands`,
+  `--with-agents`, `--with-skills`, `--with-hooks`, `--with-mcp`.
+  Generates: .claude-plugin/{plugin.json,marketplace.json}, optional
+  commands/agents/skills directories with starter files, hooks.json
+  with extracted scripts (never inline bash), a port of Cortex's own
+  validate-plugin.sh (Section 9 of CODE_PATTERNS_CLAUDE_PLUGIN), CI
+  workflow, CHANGELOG.md, README.md, LICENSE, CLAUDE.md context doc.
+  Bakes in every lesson Cortex itself learned through v1.0 → v1.2.
+
+**New reference docs (2):**
+- `skills/alpha-architecture/references/CODE_PATTERNS_MCP_SERVER.md`
+  — 10 sections covering MCP overview, Python + TypeScript server
+  skeletons, tools/prompts/resources patterns, transport (stdio/http/
+  sse), in-memory testing pattern, error handling, README template,
+  distribution (PyPI/npm/uvx/npx). Includes complete working code
+  for every section.
+- `skills/alpha-architecture/references/CODE_PATTERNS_CLAUDE_PLUGIN.md`
+  — 11 sections covering plugin structure, plugin.json schema,
+  command/agent/skill authoring, skill trigger-phrase discipline
+  (the "trigger phrase recipe" — the single most important section
+  for skill authors), hook event matrix for all 8 events, DRY ref
+  doc pattern, worktree safety pattern, validator port, versioning/
+  CHANGELOG discipline, marketplace distribution. Every anti-pattern
+  is a mistake Cortex itself made and fixed — citations to the v1.1.x
+  commits that fixed each one.
+
+### Changed
+
+- plugin.json + marketplace.json description: 45 → 47 commands, 14 →
+  16 reference docs, "scaffolders for apps, standalone MCP servers,
+  and Claude Code plugins themselves" added to value proposition.
+- CLAUDE.md: added the two new commands under the Project Setup
+  section of the directory tree.
+- plugin.json + marketplace.json bumped 1.2.0 → 1.3.0 (MINOR — new
+  public commands).
+
 ## [1.2.0] — 2026-05-27
 
 ### Added — 5 meta-process skills (Cortex is now self-contained)
