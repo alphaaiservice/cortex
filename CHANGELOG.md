@@ -5,6 +5,42 @@ All notable changes to the Cortex plugin are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.5] — 2026-05-27
+
+### Added
+
+- **Plugin CI: structure + manifest validator.** New
+  `scripts/validate-plugin.sh` runs 10 checks against the plugin
+  structure, manifests, and content. Catches the regressions most
+  likely to bite us in future:
+
+  1. `plugin.json` is valid JSON + has required fields (name, version,
+     description, author).
+  2. `marketplace.json` is valid JSON + plugin version matches
+     `plugin.json` (the exact bug present in v1.0.0 before this work).
+  3. `hooks/hooks.json` is valid JSON + every referenced script exists
+     and is executable.
+  4. Every `commands/*.md` has `frontmatter.description`.
+  5. Every `skills/*/SKILL.md` has `name` + `description`.
+  6. Every `agents/*.md` has `description`.
+  7. Every cited `commands/references/*.md` path resolves to a real
+     file (no broken refs from the v1.1.1/v1.1.3 DRY refactors).
+  8. Every cited `skills/*/references/*.md` path resolves.
+  9. No stale `*.backup` / `*.bak` / `*.old` files in the tree (the
+     exact category we cleaned up in v1.1.0).
+  10. All `scripts/*.sh` are executable.
+
+  Run locally with `bash scripts/validate-plugin.sh` before any commit
+  to the plugin. Color-coded output, exits 1 on any failure with a
+  summary of issues.
+
+- **GitHub Actions workflow.** `.github/workflows/validate-plugin.yml`
+  runs the validator on every push to `main` and every PR. Catches
+  regressions before they're merged.
+
+Current state passes all 23 checks (46 commands, 14 skills, 13 agents,
+7 hook scripts, 2 reference docs verified).
+
 ## [1.1.4] — 2026-05-27
 
 ### Added
