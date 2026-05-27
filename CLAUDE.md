@@ -270,14 +270,18 @@ When `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set, the plugin supports **Agen
 
 ## Tech Stack — Core + Conditional (Modify With Care)
 
-The stack is split into **CORE** (always enforced) and **CONDITIONAL** (only enforced if the project uses that technology). All 4 core files + 6 language reference files detect project context before applying rules.
+The stack is split into **CORE** (always enforced) and **CONDITIONAL** (only enforced if the project uses that technology). All consumers detect project context before applying rules.
 
-These are defined in FOUR places (keep them in sync):
+**🎯 SINGLE SOURCE OF TRUTH**: `commands/references/AUTO_BUILD_STACK.md` is the canonical tech-stack inventory. Modify the stack THERE. The 4 consumers below reference it — they should not duplicate stack content.
 
-1. **`commands/auto-build.md`** — Tech Stack (Core + Conditional) section with PRD requirements profile
-2. **`skills/alpha-architecture/SKILL.md`** — Step 0: Detect Project Context + Backend Language before enforcing rules
-3. **`commands/init-project.md`** — Stack Configuration with Core + Conditional sections + `--lang` flag
-4. **`commands/gen-prd.md`** — FEATURE_PROFILE analysis before generating PRD
+The 4 consumers (point to the canonical, do NOT inline stack details):
+
+1. **`commands/auto-build.md`** — Tech Stack section is a short outline that references `AUTO_BUILD_STACK.md` for each phase
+2. **`skills/alpha-architecture/SKILL.md`** — Tech Stack section is an enforcement summary that defers to `AUTO_BUILD_STACK.md` for the technology catalog (progressive disclosure)
+3. **`commands/init-project.md`** — Stack Configuration covers only init-time scaffolding decisions; consults `AUTO_BUILD_STACK.md` for library names and versions
+4. **`commands/gen-prd.md`** — PRD generation instructions tell the agent to select sections from `AUTO_BUILD_STACK.md` based on FEATURE_PROFILE, never to re-template stack content
+
+**When you need to add/change a technology**: edit `AUTO_BUILD_STACK.md` only. The 4 consumers will pick it up automatically because they reference (not duplicate) it.
 
 Language-specific details are in reference files (keep in sync with core files):
 - **`references/LANG_PROFILE_{LANG}.md`** — Directory structure, dependencies, configs, Docker, verify commands
@@ -467,7 +471,7 @@ claude --plugin-dir ~/claude-plugins/cortex
 4. **`$ARGUMENTS`** — captures user input after the command name
 5. **`${CLAUDE_PLUGIN_ROOT}`** — resolves to plugin root in hooks.json paths
 6. **Exit code 2 in hooks** — blocks the action (critical for auto-build loop)
-7. **Keep the 4 tech stack files in sync** — auto-build.md, alpha-architecture SKILL, init-project.md, gen-prd.md
+7. **Single source of truth for tech stack** — `commands/references/AUTO_BUILD_STACK.md` is canonical. The 4 consumers (auto-build.md, alpha-architecture SKILL, init-project.md, gen-prd.md) reference it; do NOT duplicate stack content into them.
 8. **Test with `--plugin-dir` flag** — fastest way to iterate during development
 9. **41 slash commands** covering the COMPLETE SDLC (planning → building → testing → shipping → operations → maintenance)
 10. **11 subagents** for parallel and specialized work (7 core + brand-designer + devops-engineer + performance-profiler + documentation-writer)

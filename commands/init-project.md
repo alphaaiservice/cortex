@@ -174,35 +174,37 @@ For each config file (pyproject.toml, .env.example, Makefile, docker-compose.yml
 
 ## Stack Configuration
 
-### Core Stack (Always Included — per detected language)
-- **Backend**: [FastAPI + Python 3.11 | NestJS 11+ + TypeScript | Spring Boot 3.4+ + Java 21]
-- **Auth**: JWT + HTTP-Only Cookies (NEVER localStorage/sessionStorage)
-- **SQL DB** (if DB_CHOICE=mysql or both): MySQL + [SQLAlchemy 2.0 async | Prisma | Spring Data JPA]
-- **NoSQL DB** (if DB_CHOICE=mongodb or both): MongoDB + [PyMongo | Mongoose | Spring Data MongoDB]
-- **Linter/Types/Tests**: [ruff+mypy+pytest | ESLint+TypeScript+Jest | Checkstyle+Java+JUnit5]
-- **Frontend** (if --with-frontend): Next.js 15+ + TypeScript + Tailwind + shadcn/ui + React Hook Form + Zod
-- **Themes**: Multi-theme mandatory (Light + Dark + System Auto)
+> **📖 CANONICAL REFERENCE**: The complete tech-stack inventory (Core + Conditional + per-language matrices, with libraries, versions, env vars, and code patterns) lives in `commands/references/AUTO_BUILD_STACK.md`. Consult it for any "which technology should I use" question. The sections below cover only the init-time decisions specific to scaffolding a new project.
 
-### Conditional Stack (Include per PRD/flags)
+### Decisions made at init time (drives what gets scaffolded)
 
-The following are ONLY included if the project's PRD or flags require them. Do NOT install, scaffold, or configure these unless needed:
+- **Backend language** (from Step 0): `python-fastapi` | `nodejs-nestjs` | `java-springboot`
+- **Database choice** (from Step 0.1): `mysql` | `mongodb` | `both`
+- **Frontend** (from `--with-frontend` flag): include Next.js scaffold YES/NO
+- **Mobile** (from `--with-mobile` flag): include React Native + Expo scaffold YES/NO
+- **GenAI** (from `--with-ai` flag): include `app/ai/` directory + LiteLLM scaffold YES/NO
+- **Feature profile**: built in Step 0.5 from PRD.md OR command flags OR interactive prompts
 
-- **Redis** (if PRD needs caching/rate-limiting/JWT blacklist): [redis.asyncio | ioredis | Spring Data Redis]
-- **Social Login** (if PRD mentions Google login): Google OAuth2 via [authlib | passport-google | Spring OAuth2]
-- **Email** (if PRD mentions transactional emails): [fastapi-mail+Celery | @nestjs-modules/mailer+BullMQ | spring-mail+@Async]
-- **Payments** (if PRD mentions billing -- India -> Razorpay, else research best): Razorpay Subscriptions + Credit Points
-- **File Upload** (if PRD mentions uploads): S3/GCS via boto3 + MinIO (local dev)
-- **Search** (if PRD mentions search): Meilisearch (full-text)
-- **Real-Time** (if PRD mentions live updates/chat): WebSocket + [python-socketio | socket.io | Spring WebSocket] + Redis pub/sub
-- **Push Notifications** (if --with-mobile): Firebase Cloud Messaging
-- **Error Tracking** (recommended): Sentry
-- **Analytics** (if PRD mentions analytics): PostHog
-- **i18n** (if PRD mentions multi-language): next-intl (web) + i18next (mobile)
-- **RBAC** (if PRD mentions roles/permissions): Custom roles + permissions
-- **2FA** (if PRD mentions enhanced security): TOTP via [pyotp | otplib | dev.samstevens.totp] + QR generation
-- **PWA** (if PRD mentions offline web): next-pwa
-- **Mobile** (if --with-mobile): React Native 0.83+ + Expo SDK 55+ + NativeWind
-- **GenAI** (if --with-ai): [LiteLLM+ADK | Vercel AI+LangChain.js | Spring AI+LangChain4j], Qdrant, Langfuse
+### Hard rules at init time (every scaffold)
+
+- **JWT + HTTP-Only Cookies** — NEVER localStorage/sessionStorage. Token lib per language (python-jose | @nestjs/jwt | jjwt-api).
+- **Layer segregation directories** MUST exist from the start (controllers/services/repositories/models), even if empty — easier to enforce than retrofit.
+- **Multi-theme support** MUST be wired in the frontend scaffold (Light + Dark + System) — never ship without dark mode.
+- **Linter + type checker + test framework** MUST be configured in `pyproject.toml` / `package.json` / `build.gradle.kts` from day one.
+
+### Conditional scaffolds (skip both the dependency AND the directory if feature profile says NO)
+
+For each row below: if the feature is NOT in scope, skip the corresponding section of `AUTO_BUILD_STACK.md` AND the listed scaffolding action. Load the canonical reference for the actual library names, versions, and env vars.
+
+- **Redis** → skip `app/repositories/cache/`, skip redis driver dep, skip docker-compose redis service
+- **Email** → skip `app/templates/emails/`, skip mail driver dep, skip Celery email queue
+- **Payments** → skip Razorpay dep, skip `app/services/billing_service.py`, skip credit-points models
+- **File Upload** → skip S3 driver, skip MinIO docker-compose service, skip `app/services/storage_service.py`
+- **Search** → skip Meilisearch dep, skip docker-compose meilisearch service, skip `app/services/search_service.py`
+- **Real-Time** → skip WebSocket dep, skip `app/core/websocket_manager.py`
+- **Mobile** → skip the entire `mobile/` directory and Expo configs
+- **GenAI** → skip the entire `app/ai/` directory and LiteLLM/Qdrant/Langfuse deps
+- **2FA / RBAC / PWA / i18n / Analytics / Sentry / Feature Flags / Admin Panel** → skip their respective deps + scaffolding
 
 ## Step 0.5: Determine Feature Profile (NEW MODE)
 

@@ -148,256 +148,43 @@ Save findings BEFORE writing the PRD:
 
 ## 2. Tech Stack (Alpha AI Standard)
 
-### Core Stack (Always Include)
+> **📖 CANONICAL REFERENCE**: The full tech stack — every library, version, pattern, env var, and conditional rule — is defined in `commands/references/AUTO_BUILD_STACK.md`. Do NOT re-template it here. Generate this PRD section by selecting from the canonical reference based on the FEATURE_PROFILE built in Step -1.
 
-#### Backend (per selected language)
-- **Python/FastAPI** (default): Python 3.11+ with FastAPI (async) + Pydantic v2 + Uvicorn + Gunicorn
-- **Node.js/NestJS**: NestJS 11+ with TypeScript + class-validator + class-transformer
-- **Java/Spring Boot**: Spring Boot 3.4+ with Java 21 + Jakarta Validation + Gradle (Kotlin DSL)
+### How to generate this section in the PRD
 
-> Include ONLY the selected language's backend in the PRD. Load stack details from LANG_PROFILE_{LANG}.md.
+1. **Load** `commands/references/AUTO_BUILD_STACK.md` for the canonical stack definitions.
 
-#### Authentication (same rules, all languages)
-- JWT tokens (access: 30min, refresh: 7 days)
-- Stored in HTTP-Only Secure Cookies
-- CSRF: Double-submit cookie pattern
-- Auth libraries: [python-jose+passlib | @nestjs/jwt+bcryptjs | jjwt-api+Spring Security]
-- ❌ NEVER localStorage or sessionStorage
+2. **Always include in the PRD** (CORE — applies to every product):
+   - **Backend framework** for the selected language (FastAPI | NestJS | Spring Boot) — copy the matching column from `Backend Stack` matrix
+   - **Authentication** — JWT + HTTP-Only Cookies (same rules all languages; never localStorage/sessionStorage)
+   - **MySQL + ORM** — pick driver per language (SQLAlchemy 2.0 async | Prisma | Spring Data JPA); list the ACID-critical entities
+   - **Code architecture** — strict layer segregation (controllers → services → repositories → models)
+   - **Testing & Quality** — linter + type checker + test framework per language, >80% coverage target
+   - **Frontend Web** (if `--with-frontend` or PRD says web): Next.js 15+ + TypeScript + Tailwind 4+ + UI library (agent picks shadcn/Ant/MUI/Chakra/Mantine via market research)
+   - **Multi-theme** — Light + Dark + System Auto (MANDATORY, never ship without dark mode)
 
-#### Database (Core)
-- **MySQL** via [SQLAlchemy 2.0 async | Prisma | Spring Data JPA]: [list ACID-critical entities]
+3. **Include CONDITIONAL sections ONLY if FEATURE_PROFILE flags them YES** — each section name maps to a `### header` in AUTO_BUILD_STACK.md:
+   - `Google OAuth2 (Social Login — Public-Facing Apps)` — if profile.has_social_login
+   - `Transactional Email System` — if profile.sends_email
+   - `Databases` (MongoDB) — if profile.needs_flexible_docs
+   - `Databases` (Redis) — if profile.needs_caching OR profile.needs_realtime OR profile.needs_rate_limit
+   - `Task Queue` — if profile.has_email OR profile.has_async_jobs
+   - `Payments — Subscription + Credit Points` — if profile.has_payments (India → Razorpay)
+   - `File Upload & Cloud Storage` — if profile.has_file_uploads
+   - `Real-Time — WebSocket + SSE` — if profile.has_realtime
+   - `Push Notifications (Mobile)` — if profile.has_mobile
+   - `Search (Full-Text Search Engine)` — if profile.has_search
+   - `Admin Panel`, `RBAC`, `Two-Factor Authentication (2FA)` — per flags
+   - `Session Management`, `Error Tracking & Crash Reporting` — recommended for production
+   - `Internationalization (i18n)` — if profile.is_multi_language
+   - `PWA (Progressive Web App) Support` — if profile.has_offline
+   - `Product Analytics & Event Tracking`, `Feature Flags`, `Backup & Disaster Recovery`, `API Rate Limiting`, `Centralized Logging` — per flags
+   - `Frontend — Mobile App (if React Native)` + all 12 Mobile sub-sections (Mobile Project Config, Auth, UI Patterns, Media & Device Features, Offline & Network, Security, Performance, Accessibility, Testing, CI/CD, App Store Readiness) — if profile.has_mobile
+   - `GenAI / Agentic AI Features` — if profile.has_ai (covers LiteLLM gateway, agentic framework, RAG, MCP, A2A, evaluation, structured output, semantic caching, multi-modal, HITL, voice AI, batch processing)
 
-#### Code Architecture
-Strictly segregated layers:
-- **Python/FastAPI**: api/ → services/ → repositories/ → models/ → schemas/ → core/ → db/
-- **Node.js/NestJS**: modules/ → controllers/ → services/ → repositories/ → entities/ → dto/
-- **Java/Spring Boot**: controller/ → service/ → repository/ → entity/ → dto/ → config/
+4. **Copy verbatim** from the canonical stack — don't paraphrase or summarize. The generated PRD must match what `/auto-build` will actually implement. If a downstream agent reads the PRD and a detail is missing or rephrased, the build will diverge from the standard.
 
-#### Testing & Quality (per language)
-- [pytest+pytest-asyncio+httpx | Jest+supertest | JUnit5+Mockito+MockMvc]
-- [ruff+mypy | ESLint+Prettier+TypeScript | Checkstyle+SpotBugs+Java compiler]
-- >80% code coverage target
-
-### Conditional Stack (Include ONLY if FEATURE_PROFILE says YES)
-
-Include the following sections ONLY if the product requires them:
-- **MongoDB section**: Only if product needs flexible documents, logs, profiles
-- **Redis section**: Only if product needs caching, rate limiting, JWT blacklist, OTP codes
-- **Razorpay/Payments section**: Only if product has paid features (and India-focused → Razorpay, otherwise research best gateway)
-- **Google OAuth section**: Only if product has social login
-- **Email section**: Only if product sends transactional emails
-- **Mobile section**: Only if product has a mobile app
-- **GenAI section**: Only if product has AI features
-- **Search section**: Only if product needs full-text search
-- **Real-Time section**: Only if product needs live updates/chat
-- **Push Notifications**: Only if product has mobile app
-- **i18n section**: Only if product needs multi-language
-- **PWA section**: Only if product needs offline web
-
-#### Google OAuth2 (Social Login) — IF FEATURE_PROFILE includes social login
-- **Library**: [authlib | passport-google-oauth20 | Spring Security OAuth2 Client] (server-side Authorization Code Grant)
-- Login/register via Gmail — auto-create user on first Google login
-- Account linking: match by email across login methods
-- Google-verified emails skip email verification
-- Same JWT cookie auth after Google login (not Google tokens)
-- ❌ NEVER store Google access tokens — fetch user info and discard
-- ❌ NEVER use client-side Google JS SDK popup — use server redirect
-
-#### Transactional Email System — IF FEATURE_PROFILE includes email
-- **Library**: [fastapi-mail+Jinja2 | @nestjs-modules/mailer+Handlebars | spring-mail+Thymeleaf]
-- **SMTP**: Gmail SMTP (dev) / AWS SES or SendGrid (production)
-- **Sending**: Always async via [Celery tasks | Bull queue | @Async+ThreadPool] (never block API response)
-- **Email types**: welcome, email OTP, password reset OTP, password changed, login alert, subscription activated/renewed/cancelled, payment receipt, invoice, low point balance, points exhausted, top-up confirmation, trial expiring/expired, account deactivated, weekly usage summary
-- **Templates**: HTML with [Jinja2 | Handlebars | Thymeleaf] in templates directory extending base layout
-- **Unsubscribe**: Token-based unsubscribe link in email footer for optional emails
-
-#### Payments — Subscription + Credit Points — IF FEATURE_PROFILE includes payments
-- **Billing model**: Subscription (monthly/yearly) gives credit points, NOT unlimited access
-- If India-focused → Razorpay Subscriptions for recurring plan billing
-- If global → research best payment gateway (Stripe, Razorpay, etc.)
-- Credit points deducted per action (especially GenAI calls with compute cost)
-- Top-up point packs via one-time purchase when points exhaust mid-cycle
-- 7-day free trial with moderate free points (agent auto-calculates based on cost)
-- Webhooks for subscription lifecycle + payment confirmation
-- Signature verification (HMAC SHA256) — MANDATORY
-- If India-focused: Currency INR (₹), amounts stored in paisa, GST 18%
-- ❌ Subscription NEVER means unlimited access
-
-#### Databases (Conditional)
-- **MongoDB** via [PyMongo | Mongoose | Spring Data MongoDB] — IF FEATURE_PROFILE includes MongoDB: [list entities — flexible: profiles, audit logs, analytics]
-- **Redis** via [redis.asyncio | ioredis | Spring Data Redis] — IF FEATURE_PROFILE includes Redis: JWT blacklist, rate limiting, OTP codes, caching
-
-### Frontend — Web (if applicable)
-- Next.js 15+ (App Router) + TypeScript strict + Tailwind CSS 4+
-- **UI Library**: Agent chooses best based on market research:
-  - shadcn/ui + Radix (SaaS dashboards, B2B) — RECOMMENDED default
-  - Ant Design (data-heavy enterprise apps)
-  - MUI (Material Design consumer apps)
-  - Chakra UI (clean minimal startups)
-  - Mantine (feature-rich complex apps)
-- Framer Motion (animations, page transitions, micro-interactions)
-- React Hook Form + Zod (type-safe forms)
-- TanStack Query (server state) + Zustand (global state)
-- Sonner (toast notifications), Lucide React (icons)
-- Dark mode (next-themes) — mandatory
-- Axios with withCredentials: true
-- Auth state from /auth/me endpoint
-- ❌ NO localStorage/sessionStorage for tokens
-
-### Frontend — Mobile (if React Native needed)
-- React Native 0.83+ with Expo SDK 55+ (New Architecture only)
-- NativeWind (Tailwind for RN) or React Native Paper
-- React Navigation 7 — **ALWAYS: Side Drawer + Bottom Tab Bar**
-  - Bottom tabs: 4-5 core screens (always visible)
-  - Side drawer: Secondary nav (settings, help, profile, logout)
-  - Stack navigators inside each tab (list → detail flow)
-- Reanimated 3 + Gesture Handler (60fps animations)
-- expo-secure-store for auth tokens (NEVER AsyncStorage)
-
-#### Mobile Project Config
-- app.config.ts — dynamic Expo config (bundleIdentifier, package name, splash, icons, plugins)
-- eas.json — EAS Build profiles (development, preview, production)
-- babel.config.js — Babel presets + NativeWind plugin
-- metro.config.js — Metro bundler customization (asset extensions, resolvers)
-- tailwind.config.js — NativeWind Tailwind config (mobile-specific breakpoints)
-
-#### Mobile Auth
-- expo-secure-store for JWT tokens (access + refresh) — NEVER AsyncStorage or cookies
-- expo-auth-session for Google OAuth (opens system browser, handles redirect)
-- expo-apple-authentication — REQUIRED for iOS (Apple rejects apps without Apple Sign-In if other social logins exist)
-- expo-local-authentication for biometrics (Face ID / Touch ID / fingerprint unlock)
-- Token auto-refresh interceptor in Axios (intercept 401 → refresh → retry)
-
-#### Mobile UI Libraries
-- @gorhom/bottom-sheet — native-quality bottom sheets with snap points
-- react-native-toast-message — toast notifications (success/error/info)
-- expo-haptics — haptic feedback on button presses, swipes, confirmations
-- react-native-skeleton-placeholder — skeleton loading screens (not spinners)
-- expo-image — performant cached image component (replaces React Native Image)
-- @shopify/flash-list — high-performance list rendering (ALWAYS use instead of FlatList)
-- react-native-safe-area-context — SafeAreaView on ALL screens (no notch/island clipping)
-- KeyboardAvoidingView — wrap all forms (behavior="padding" iOS, behavior="height" Android)
-
-#### Mobile Media
-- expo-camera — camera access for photo/video capture
-- expo-image-picker — gallery + camera image selection with cropping
-- expo-file-system — file read/write, download management, cache directory
-- expo-sharing — native share sheet for files and content
-- expo-av — audio/video playback and recording
-
-#### Device Features
-- expo-location — GPS coordinates, geofencing, background location
-- expo-contacts — access device contacts (with permission)
-- expo-clipboard — copy/paste programmatic access
-- expo-linking — deep link handling + opening external URLs
-- expo-device — device info (model, OS version, brand)
-- expo-network — network state (wifi/cellular/offline), connection type
-- expo-haptics — tactile feedback for interactions (light/medium/heavy impact)
-
-#### Offline Support
-- @react-native-community/netinfo — real-time connectivity monitoring
-- TanStack Query persistQueryClient — persist query cache to AsyncStorage for offline reads
-- Offline mutation queue — queue POST/PUT/DELETE requests when offline, replay when online
-- Show offline banner when no connectivity (non-dismissable, top of screen)
-
-#### Mobile Security
-- Certificate pinning — pin backend TLS certificate to prevent MITM attacks
-- Root/jailbreak detection — detect compromised devices, warn or restrict
-- Code obfuscation — ProGuard (Android) + Hermes bytecode (iOS) for reverse-engineering protection
-- Secure store — all sensitive data (tokens, keys) in expo-secure-store (Keychain iOS / Keystore Android)
-- ❌ NEVER store tokens in AsyncStorage (unencrypted, accessible by other apps on rooted devices)
-
-#### Mobile Performance
-- Hermes engine — ENABLED by default (faster startup, lower memory, bytecode precompilation)
-- FlashList — use @shopify/flash-list for ALL scrollable lists (2x faster than FlatList)
-- expo-image caching — automatic disk + memory cache with blurhash placeholders
-- Bundle analysis — react-native-bundle-visualizer for identifying large dependencies
-- Avoid inline styles — use NativeWind classes or StyleSheet.create
-- useMemo/useCallback for expensive computations and callback props
-
-#### Mobile Accessibility
-- accessibilityLabel on ALL touchable elements (buttons, links, icons)
-- accessibilityRole — set correct role (button, link, header, image, text)
-- 44x44pt minimum touch targets — Apple HIG requirement (no tiny buttons)
-- Dynamic font scaling — support system font size preferences (accessibilityFontScale)
-- accessibilityHint for non-obvious actions
-- Reduce motion support — check useReducedMotion() before animations
-
-#### Mobile Testing
-- Jest + React Native Testing Library (RNTL) — unit + component tests
-- Detox E2E — end-to-end testing on iOS simulator + Android emulator
-- Device matrix — test on iPhone SE (small), iPhone 15 Pro (large), Pixel 5, Samsung Galaxy
-- Test on both iOS and Android before every release
-
-#### Mobile CI/CD
-- EAS Build — cloud builds for iOS + Android (no local Xcode/Android Studio required)
-- EAS Submit — automated submission to App Store Connect + Google Play Console
-- EAS Update — OTA (over-the-air) JavaScript updates without app store review
-- Code signing — Apple provisioning profiles + Android keystore managed by EAS
-- TestFlight — iOS beta distribution to testers
-- Play Store internal track — Android beta distribution to testers
-
-#### App Store Readiness
-- **iOS Checklist:**
-  - Apple Sign-In MANDATORY (if any other social login exists — Apple will reject without it)
-  - App Privacy Nutrition Labels (declare data collection in App Store Connect)
-  - 6.7" + 5.5" screenshots required (iPhone 15 Pro Max + iPhone 8 Plus)
-  - App Review guidelines compliance (no web-view-only apps, no misleading metadata)
-- **Android Checklist:**
-  - Target SDK 34+ (Google Play requirement)
-  - Data Safety Form (declare data collection in Play Console)
-  - 16:9 screenshots + 7" tablet screenshots
-  - Content rating questionnaire completed
-- **OTA Updates:** EAS Update for instant JS bundle fixes (no store review delay)
-- **Versioning:** Semantic versioning (major.minor.patch) + buildNumber auto-increment via EAS
-
-### GenAI / Agentic AI (if product has AI features)
-- LiteLLM v1.81+ — unified LLM gateway (OpenAI, Claude, Gemini, Mistral, Bedrock, Ollama)
-- Agentic framework: Google ADK v0.5+ / LangGraph / CrewAI v0.152+ (pick based on use case)
-- Claude Agent SDK / OpenAI Agents SDK (if provider-specific agents needed)
-- MCP (Model Context Protocol) — agent-to-tool communication standard
-- MCP Prompts & Tools Server — expose reusable prompts via prompts/list + prompts/get, tools via tools/list + tools/call (Linux Foundation open standard)
-- A2A (Agent-to-Agent Protocol) — agent discovery via Agent Cards (/.well-known/agent.json), task lifecycle management, supported by 150+ organizations (Google-led open standard)
-- Agent Skills Standard — reusable SKILL.md packaging for AI agent capabilities, skill registry and discovery
-- RAG: Qdrant (vector DB) + text-embedding-3-large + semantic chunking
-- Prompt management: [Jinja2 | Handlebars | Thymeleaf]/YAML templates (version-controlled, not hardcoded)
-- Streaming: SSE for token-by-token AI responses
-- AI observability: Langfuse or LangSmith for LLM tracing
-- Guardrails: input/output filtering, PII detection, cost caps per user
-- Cost tracking: every LLM call deducts credit points (integrated with billing)
-- AI Evaluation: DeepEval (LLM unit tests, pytest-compatible) + RAGAS (RAG quality metrics) + promptfoo (prompt A/B testing)
-- Structured Output: [instructor+Pydantic | zod+langchain | Jackson+Spring AI] for validated LLM output extraction (auto-retry on validation failure)
-- Semantic Caching: Redis + embedding cosine similarity (threshold > 0.95) — skip redundant LLM calls
-- Agentic RAG: retrieval agent dynamically decides which knowledge bases to query, whether to do web search, whether to decompose complex queries into sub-queries
-- Re-ranking: Cohere Rerank v3.5 / FlashRank after vector retrieval — retrieve(top_k=20) → rerank(top_n=5) → generate
-- Multi-Modal AI: Vision (GPT-4o/Gemini/Claude), Image gen (DALL-E 3/Flux), TTS (OpenAI TTS / Gemini TTS / ElevenLabs), STT (Whisper) — all via LiteLLM
-- Human-in-the-Loop (HITL): confidence threshold, review queue, approve/reject/edit workflow, feedback → fine-tuning
-- Context Window Management: tiktoken token counting, auto-summarization when exceeding threshold, sliding window
-- Voice AI: Whisper STT + OpenAI TTS / Gemini TTS / ElevenLabs, WebSocket audio streaming
-- Batch AI Processing: [Celery tasks | Bull queues | Spring Batch] for bulk operations, Redis progress tracking, rate-limited batch processing
-
-### Theme / Appearance Support (MANDATORY — All Products)
-- **Minimum 3 themes**: Light Mode + Dark Mode + System Auto
-- Web: next-themes + Tailwind `dark:` variant + CSS variables
-- Mobile: useColorScheme() + ThemeProvider + NativeWind dark variant
-- Theme toggle in navbar/settings (sun/moon/system icons)
-- User theme preference persisted in DB (syncs across devices)
-- All components use theme tokens — NEVER hardcoded colors
-- Charts, images, code blocks — all theme-aware
-- ❌ NEVER ship without dark mode support
-- ❌ NEVER have white flash on dark mode page load
-
-### Additional Infrastructure (Include per FEATURE_PROFILE)
-Include each bullet ONLY if the product needs it. Do NOT include Meilisearch for a project without search, do NOT include FCM for a project without mobile, etc.
-- **File Upload**: S3/GCS via [boto3 | @aws-sdk/client-s3 | AWS SDK for Java], presigned URL pattern, [Pillow | sharp | thumbnailator] for image processing, MinIO for local dev — IF product needs file uploads
-- **Search**: Meilisearch (full-text search, typo tolerance, faceted), Cmd+K command palette in frontend — IF product needs full-text search
-- **Real-Time**: [FastAPI WebSocket+python-socketio | @nestjs/websockets+socket.io | Spring WebSocket+STOMP], Redis pub/sub for scaling, live notifications/chat — IF product needs live updates
-- **Push Notifications**: Firebase Cloud Messaging ([firebase-admin | firebase-admin SDK | firebase-admin Java SDK]), expo-notifications for mobile — IF product has mobile app
-- **Error Tracking**: Sentry ([sentry-sdk[fastapi] | @sentry/node | sentry-spring-boot-starter], @sentry/nextjs, sentry-expo) — recommended for all production apps
-- **Analytics**: PostHog (self-hosted, privacy-first) — event tracking, funnels, retention — IF product needs analytics
-- **i18n**: next-intl (web) + i18next + expo-localization (mobile) — IF product needs multi-language
-- **PWA**: next-pwa — service worker, install prompt, offline fallback — IF product needs offline web
-- **CDN**: CloudFront/Cloud CDN for static assets + uploaded files — IF product serves static/uploaded content
+5. **NEVER list a technology** the FEATURE_PROFILE does not require — including unused infrastructure in the PRD causes `/auto-build` to scaffold dead code (extra docker-compose services, unused deps, empty directories).
 
 ## 3. Data Models
 

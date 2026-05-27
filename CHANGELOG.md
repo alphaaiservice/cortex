@@ -5,6 +5,32 @@ All notable changes to the Cortex plugin are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] — 2026-05-27
+
+### Changed
+
+- **Tech stack now has a single source of truth.** `commands/references/AUTO_BUILD_STACK.md`
+  is canonical. The 4 consumers (`commands/auto-build.md`,
+  `skills/alpha-architecture/SKILL.md`, `commands/init-project.md`,
+  `commands/gen-prd.md`) now reference it instead of duplicating stack
+  content inline. Removes ~234 lines of duplication and eliminates the
+  "keep 4 files in sync" maintenance burden flagged in CLAUDE.md note #7.
+
+  - `commands/gen-prd.md`: Tech Stack section shrank from 253 lines of
+    duplicated tables to a 40-line instruction telling the agent which
+    sections of AUTO_BUILD_STACK.md to copy based on FEATURE_PROFILE.
+  - `skills/alpha-architecture/SKILL.md`: 92-line Tech Stack tables
+    replaced with a terse enforcement summary that defers to
+    AUTO_BUILD_STACK.md for the technology catalog (progressive disclosure
+    pattern, matching how alpha-architecture already uses references for
+    code patterns).
+  - `commands/init-project.md`: Stack Configuration now covers only
+    init-time scaffolding decisions (which directories to skip when a
+    feature is out of scope), consulting AUTO_BUILD_STACK.md for actual
+    library names and versions.
+  - `CLAUDE.md`: Notes #7 and #275 updated to document the new SOT and
+    instruct future modifications to happen in AUTO_BUILD_STACK.md only.
+
 ## [1.1.0] — 2026-05-27
 
 ### Added

@@ -72,99 +72,76 @@ STEP 0b — BUILD REQUIREMENTS PROFILE:
 
 ---
 
-## Tech Stack — CORE (Always Enforced)
+## Tech Stack — See Canonical Reference
 
-> Backend technology varies by detected language (Step 0a). Frontend stack is always the same.
+> **📖 CANONICAL REFERENCE**: The full tech-stack inventory — every library, version, driver, and conditional rule for Backend, Frontend Web, Mobile, GenAI, and 30+ infrastructure components — lives in `commands/references/AUTO_BUILD_STACK.md`. Load that file when you need to look up *which* technology to use, *which* library to install, or *which* pattern to follow.
+>
+> **This skill's job is to ENFORCE, not LIST**. The summary below tells you WHAT to check, not WHAT exists. For the technology catalog itself (with NEVER-USE alternatives, version pins, and per-language matrices), consult the canonical reference.
 
-### Backend Stack (per language from Step 0a)
+### CORE — Always Enforce (every project)
 
-| Component | Python/FastAPI | Node.js/NestJS | Java/Spring Boot |
-|-----------|---------------|----------------|------------------|
-| Framework | FastAPI + Python 3.11+ | NestJS 11+ + TypeScript | Spring Boot 3.4+ + Java 21 |
-| ORM | SQLAlchemy 2.0 async | Prisma | Spring Data JPA + Hibernate 6 |
-| Auth lib | python-jose + passlib | @nestjs/jwt + bcryptjs | jjwt-api + Spring Security |
-| Email | fastapi-mail + Celery | @nestjs-modules/mailer + BullMQ | spring-boot-starter-mail + @Async |
-| Queue | Celery + Redis | BullMQ | Spring @Async + @Scheduled |
-| Linter | ruff | ESLint + Prettier | Checkstyle + SpotBugs |
-| Types | mypy (strict) | TypeScript (built-in) | Java compiler (built-in) |
-| Tests | pytest + pytest-asyncio | Jest + supertest | JUnit 5 + Mockito + MockMvc |
-| Migrations | Alembic | Prisma migrate | Flyway |
-| Package | pip + requirements.txt | pnpm + package.json | Gradle (Kotlin DSL) |
-| Docker base | python:3.11-slim | node:22-alpine | eclipse-temurin:21-jre-alpine |
-| GenAI | LiteLLM + Google ADK | Vercel AI SDK + LangChain.js | Spring AI + LangChain4j |
+- **Backend framework**: FastAPI | NestJS | Spring Boot (detected in Step 0a)
+- **Auth**: JWT + HTTP-Only Cookies — NEVER localStorage / sessionStorage / Bearer header from frontend
+- **SQL DB**: MySQL + ORM per language (SQLAlchemy 2.0 async | Prisma | Spring Data JPA) — never PostgreSQL/SQLite in prod
+- **Layer segregation**: controllers → services → repositories → models (no skipping, no business logic in controllers, no DB calls in services)
+- **Linting + Type checking + Testing** per language (ruff/mypy/pytest | ESLint+Prettier/TypeScript/Jest | Checkstyle+SpotBugs/Java/JUnit 5)
+- **Frontend Web** (if applicable): Next.js 15+ + TypeScript + Tailwind 4+ + shadcn/ui (default — agent may pick Ant/MUI/Chakra/Mantine based on product research)
+- **Forms**: React Hook Form + Zod (no Formik, no uncontrolled forms)
+- **Multi-theme MANDATORY**: Light + Dark + System Auto (next-themes web / ThemeProvider mobile) — never ship a single-theme app
 
-**NEVER Use (any language):** Flask, Django, Express (raw), Ruby on Rails, PHP Laravel
+**NEVER use (any language)**: Flask, Django, Express (raw), Ruby on Rails, PHP Laravel, Bootstrap, Formik, jQuery, Vue, Angular
 
-### Core (All Languages)
+### CONDITIONAL — Enforce ONLY When Step 0b Profile Says YES
 
-| Component | Technology | NEVER Use |
-|-----------|-----------|-----------|
-| Auth | JWT + HTTP-Only Cookies | localStorage, sessionStorage, Bearer header from frontend |
-| SQL DB | MySQL + [SQLAlchemy \| Prisma \| Spring Data JPA] | PostgreSQL, SQLite (prod), raw SQL |
-| Frontend Web | Next.js 15+ + TypeScript + Tailwind + shadcn/ui (or best for product) | Vanilla JS, Vue, Angular, jQuery |
-| UI Components | Agent researches & picks best (shadcn/Ant/MUI/Chakra/Mantine) | Random/mixed UI libraries, Bootstrap |
-| Forms | React Hook Form + Zod | Formik, uncontrolled forms without validation |
-| Themes | Multi-theme: Light + Dark + System (next-themes / ThemeProvider) | Single theme, no dark mode, hardcoded colors |
+Each row below maps to a section in `AUTO_BUILD_STACK.md`. If the project doesn't use the technology, **do not enforce its rules**.
 
-## Tech Stack — CONDITIONAL (Only If Project Uses These)
+- **MongoDB** — flexible docs / logs / audit trails (PyMongo | Mongoose | Spring Data MongoDB). Never DynamoDB/CouchDB/Firestore.
+- **Redis** — caching / rate limiting / JWT blacklist / real-time (redis.asyncio | ioredis | Spring Data Redis). Never Memcached.
+- **Payments (India)** — Razorpay Subscriptions + Credit Points + Top-Up Packs. Never Stripe/PayPal/CCAvenue for India SaaS.
+- **Social Login** — Google OAuth2 server-side Authorization Code Grant (authlib | passport-google | Spring OAuth2 Client). Never Firebase Auth / Auth0 / Clerk / Google JS SDK popup.
+- **Email** — Async via Celery | BullMQ | @Async (fastapi-mail | @nestjs-modules/mailer | spring-mail). Never synchronous SMTP, never SendGrid SDK directly.
+- **File Storage** — S3/GCS via boto3 | @aws-sdk/s3 | AWS SDK v2 Java + MinIO for local dev. Never local filesystem in prod.
+- **Search** — Meilisearch (full-text, typo-tolerant). Never raw SQL LIKE.
+- **Real-Time** — WebSocket + python-socketio | socket.io | Spring WebSocket + Redis pub/sub. Never polling.
+- **Push Notifications** — FCM via firebase-admin + expo-notifications. Never OneSignal.
+- **Error Tracking** — Sentry (backend + frontend + mobile). Recommended for all production apps.
+- **Analytics** — PostHog (self-hosted, privacy-first). Never GA alone.
+- **i18n** — next-intl (web) + i18next (mobile).
+- **PWA** — next-pwa.
+- **RBAC** — custom roles + permissions in MySQL + Redis cache.
+- **2FA** — TOTP via pyotp | otplib | dev.samstevens.totp + QR. Never SMS-only.
+- **Feature Flags** — custom MySQL + Redis cache + admin toggle.
+- **Admin Panel** — dedicated `/admin` API + frontend section.
+- **Animation** — Framer Motion (web) / Reanimated 3 (mobile).
 
-> **RULE**: Only enforce rows below IF the project context (from Step 0) indicates the technology is needed. If the project does not use MongoDB, do NOT enforce MongoDB rules. If the project has no payments, do NOT enforce Razorpay rules. Etc.
+### MOBILE — Enforce ONLY If Project Has React Native App
 
-| Component | Technology | NEVER Use | Enforce When |
-|-----------|-----------|-----------|--------------|
-| NoSQL DB | MongoDB + [PyMongo \| Mongoose \| Spring Data MongoDB] | DynamoDB, CouchDB, Firestore | Project has flexible docs, logs, or audit trails |
-| Cache | Redis + [redis.asyncio \| ioredis \| Spring Data Redis] | Memcached, in-memory dicts | Project needs caching, rate limiting, or real-time |
-| Payments | Razorpay (India SaaS) | Stripe, PayPal, CCAvenue | PRD mentions payments, billing, subscriptions |
-| Social Login | Google OAuth2 via [authlib \| passport-google \| Spring OAuth2 Client] | Firebase Auth, Auth0, Clerk, Google JS SDK popup | PRD mentions social login or Google sign-in |
-| Email | [fastapi-mail+Celery \| @nestjs-modules/mailer+BullMQ \| spring-mail+@Async] | SendGrid SDK directly, synchronous SMTP | PRD mentions transactional emails |
-| File Storage | S3/GCS via [boto3 \| @aws-sdk/s3 \| AWS SDK v2 Java] + MinIO (local dev) | Local filesystem in prod, Firebase Storage | PRD mentions file uploads or media |
-| Search | Meilisearch (full-text, typo-tolerant) | Raw SQL LIKE queries, no search engine | PRD mentions full-text search |
-| Real-Time | WebSocket + [python-socketio \| socket.io \| Spring WebSocket] + Redis pub/sub | Polling, Firebase Realtime DB | PRD mentions live updates, chat, or real-time |
-| Push Notifications | FCM via firebase-admin + expo-notifications | OneSignal, custom push servers | Project has mobile app |
-| Error Tracking | Sentry (backend + frontend + mobile) | console.log only, no error tracking | Recommended for production apps |
-| Analytics | PostHog (self-hosted, privacy-first) | Google Analytics alone, no event tracking | PRD mentions analytics |
-| i18n | next-intl (web) + i18next (mobile) | Hardcoded strings, no translation system | PRD mentions multi-language |
-| PWA | next-pwa (service worker, offline) | No PWA support, no offline capability | PRD mentions PWA or offline web |
-| RBAC | Custom roles + permissions (MySQL + Redis cache) | Simple user/admin only, no granular permissions | PRD mentions roles or permissions |
-| 2FA | TOTP via [pyotp \| otplib \| dev.samstevens.totp] + QR generation | SMS-only 2FA, no authenticator app support | PRD mentions two-factor auth |
-| Feature Flags | Custom (MySQL + Redis cache + admin toggle) | No feature flags, deploy for every toggle | PRD mentions gradual rollout |
-| Admin Panel | Dedicated /admin API + frontend section | No admin panel, direct DB access | PRD mentions admin dashboard |
-| Animation | Framer Motion (web), Reanimated 3 (mobile) | CSS-only animations for complex interactions | Project has complex UI animations |
+- React Native 0.83+ + Expo SDK 55+ + NativeWind (New Architecture only). Never Flutter/Ionic/Cordova/native Swift/Kotlin.
+- Navigation: Drawer + Bottom Tabs + Stack (ALWAYS — never tabs-only or drawer-only).
+- Auth: expo-secure-store + expo-auth-session + expo-apple-authentication. NEVER AsyncStorage for tokens. Apple Sign-In MANDATORY if any other social login exists.
+- UI: SafeAreaView + FlashList (NEVER FlatList for long lists) + @gorhom/bottom-sheet + expo-image.
+- Offline: NetInfo + TanStack Query persist + expo-task-manager.
+- CI/CD: EAS Build + Submit + Update. Never manual builds.
+- Testing: Jest + RNTL + Detox E2E.
 
-### Mobile Stack (Only If Project Has Mobile App)
+### GENAI — Enforce ONLY If Project Has AI Features
 
-| Component | Technology | NEVER Use |
-|-----------|-----------|-----------|
-| Frontend Mobile | React Native + Expo + NativeWind (or best for app) | Flutter, Ionic, Cordova, native Swift/Kotlin |
-| Mobile Nav | Drawer + Bottom Tabs + Stack (ALWAYS) | Tabs only, Drawer only, no consistent nav |
-| Mobile Auth | expo-secure-store + expo-auth-session + expo-apple-authentication | AsyncStorage for tokens, WebView OAuth, skip Apple Sign-In |
-| Mobile UI | SafeAreaView + FlashList + @gorhom/bottom-sheet + expo-image | FlatList for long lists, no SafeArea, RN Image for remote |
-| Mobile Offline | NetInfo + TanStack Query persist + expo-task-manager | Assume always-online, no offline handling |
-| Mobile CI/CD | EAS Build + Submit + Update (Expo) | Manual builds, no OTA updates, local signing |
-| Mobile Testing | Jest + RNTL + Detox (E2E) | No mobile E2E testing, Expo Go only |
-
-### GenAI Stack (Only If Project Has AI Features)
-
-| Component | Technology | NEVER Use |
-|-----------|-----------|-----------|
-| GenAI Gateway | [LiteLLM \| Vercel AI SDK \| Spring AI] (unified multi-LLM) | hardcode single provider SDK, expose API keys to frontend |
-| Agentic Framework | [Google ADK / LangGraph / CrewAI \| LangChain.js \| LangChain4j] | build agents without tool use, skip memory/state |
-| RAG Pipeline | Qdrant + text-embedding-3-large + semantic chunking | stuff full docs in context, skip vector search |
-| AI Observability | Langfuse or LangSmith (LLM tracing) | ship AI features without tracing, skip cost tracking |
-| AI Safety | Guardrails: input filter + output filter + cost caps | allow unbounded AI calls, expose raw model errors |
-| Prompt Management | Jinja2/YAML templates (version-controlled) | hardcode prompts as string literals in service code |
-| MCP Protocol | MCP server (tools + prompts + resources) via JSON-RPC 2.0 | skip MCP for tool integration, hardcode tool calls |
-| A2A Protocol | Agent Card discovery + task lifecycle (/.well-known/agent.json) | build agent APIs without A2A discoverability |
-| AI Evaluation | [DeepEval+RAGAS \| Jest AI tests \| JUnit AI tests] + promptfoo | ship AI without evaluation, skip RAG quality checks |
-| Structured Output | [instructor+Pydantic \| Zod schemas \| Spring AI structured] | parse raw LLM text with regex, skip validation |
-| Semantic Caching | Redis + embedding cosine similarity (>0.95 threshold) | call LLM for identical/similar queries, skip caching |
-| Agentic RAG | Retrieval agent + query decomposition + web search fallback | single fixed retrieval strategy, skip query routing |
-| Re-ranking | Cohere Rerank v3.5 / FlashRank (post-retrieval) | use raw vector similarity alone, skip re-ranking |
-| Multi-Modal AI | Vision + Image Gen + STT + TTS via LiteLLM | hardcode single modality, skip LiteLLM routing |
-| HITL | Confidence threshold + review queue + approve/reject | auto-publish low-confidence AI output, skip review |
-| Context Management | tiktoken + auto-summarization + sliding window | exceed context window, skip token counting |
-| Voice AI | Whisper STT + OpenAI/Gemini/ElevenLabs TTS | block on audio processing, skip streaming |
-| Batch Processing | [Celery \| BullMQ \| Spring @Async] + Redis progress tracking | process bulk AI synchronously, skip progress |
+- **Gateway**: LiteLLM | Vercel AI SDK | Spring AI (unified multi-LLM). Never hardcode a single provider SDK. Never expose API keys to frontend.
+- **Agentic**: Google ADK / LangGraph / CrewAI | LangChain.js | LangChain4j.
+- **RAG**: Qdrant + text-embedding-3-large + semantic chunking + Cohere Rerank v3.5 (or FlashRank).
+- **Observability**: Langfuse or LangSmith — LLM tracing + cost tracking MANDATORY.
+- **Safety**: Guardrails (input + output filter) + per-user cost caps.
+- **Prompts**: Jinja2/YAML templates, version-controlled. NEVER string literals in service code.
+- **Protocols**: MCP server (tools + prompts + resources via JSON-RPC 2.0), A2A Agent Card discovery (`/.well-known/agent.json`).
+- **Evaluation**: DeepEval + RAGAS + promptfoo. Never ship AI without eval.
+- **Structured Output**: instructor+Pydantic | Zod | Spring AI structured (auto-retry on validation failure).
+- **Semantic Caching**: Redis + embedding cosine similarity > 0.95 threshold.
+- **Agentic RAG**: retrieval agent + query decomposition + web search fallback.
+- **Multi-Modal**: Vision + Image Gen + STT + TTS — all via the gateway.
+- **HITL**: confidence threshold + review queue + approve/reject/edit.
+- **Context Management**: tiktoken + auto-summarization + sliding window.
+- **Voice AI**: Whisper STT + OpenAI/Gemini/ElevenLabs TTS.
+- **Batch Processing**: Celery | BullMQ | Spring @Async + Redis progress tracking.
 
 ## Auth Rules — ABSOLUTE
 

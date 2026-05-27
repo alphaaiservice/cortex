@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Official Claude Code plugin marketplace by Alpha AI Service Pvt Ltd",
-    "version": "1.1.0"
+    "version": "1.1.1"
   },
   "plugins": [
     {
       "name": "cortex",
       "source": "./",
       "description": "Cortex — SDLC Automation Engine. 45 commands, 13 agents, 14 skills, 7 hooks, 14 reference docs. Forge production-ready software from idea to deployment.",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "author": {
         "name": "Alpha AI Service Pvt Ltd",
         "email": "info@alphaaiservice.com"
