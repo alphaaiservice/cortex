@@ -93,6 +93,22 @@ Assign the resolved file to `SPEC_FILE` and use `SPEC_FILE` everywhere below (no
 
 7. **If context is getting large**, use `/compact` or let auto-compaction handle it. The point is to minimize what enters the main context in the first place.
 
+### Model-Aware Strategy (NEW — relax these rules on 1M context models)
+
+The rules above were designed for 200K context windows. On a **1M context model (Opus 4.7+ with `[1m]` suffix)** you have ~5x more room, and the strict "never inline" rule becomes counterproductive — every subagent spawn adds latency and the cross-context handoff has fidelity loss. Detect the model and pick the right strategy:
+
+| Model class | Effective context | Strategy | Phase grouping |
+|-------------|-------------------|----------|----------------|
+| **1M context** (Opus 4.7 [1m], Sonnet 4.6 [1m]+) | ~1M tokens | **Relaxed delegation.** Inline single-file phases (≤300 LoC output). Delegate multi-file phases. Group adjacent small phases into one subagent (e.g., Phase 6 Auth + Phase 6.5 Payments + Phase 6.8 Upload can be ONE subagent on 1M models — they were split for context budget, not logical separation). | 6 → 6.5 → 6.8 (one subagent), 7 → 8 (one subagent), 12-unit + 12-e2e (one subagent) |
+| **200K context** (default Opus/Sonnet) | ~200K tokens | **Strict delegation** (rules 1-7 above). Every phase = its own subagent. | One subagent per phase, period |
+| **Smaller models** (Haiku) | ~200K but smaller model | **Aggressive delegation** + frequent compaction. Spawn smaller, more numerous subagents; checkpoint to git after every sub-step. | Subdivide phases — one subagent per ~5 files |
+
+**How to detect**: Check `claude --version` output or look for `[1m]` suffix in the model ID at session start. The `session-context.sh` hook can log this if you want it in the build log.
+
+**Compaction checkpoints**: The PreCompact hook fires whenever the harness triggers compaction. On 1M context models, this fires much later in the build (often not at all for sub-2-hour builds), so the `.cortex/state-backups/` checkpoints will be sparser. That's fine — fewer checkpoints means less I/O and faster builds. The Stop hook is the real autonomy mechanism, not compaction.
+
+**When in doubt, default to the strict 200K strategy.** It's slower but always works. The relaxed 1M strategy is an optimization, not a behavior change — if you're not sure which model you're on, behave as if you're on 200K.
+
 ### Global Dev Squad — Persona Roster
 
 You are **Arjun Mehta** (India), Tech Lead. When delegating each phase to a subagent, **pick the matching persona** from this roster. Each subagent MUST announce itself at the start and end:

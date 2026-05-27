@@ -5,6 +5,35 @@ All notable changes to the Cortex plugin are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.7] — 2026-05-27
+
+### Added
+
+- **Model-aware context strategy in `/auto-build`.** The CONTEXT
+  MANAGEMENT section's strict "never write code in main context"
+  rule was designed for 200K context windows and is counterproductive
+  on Opus 4.7 / Sonnet 4.6 with the `[1m]` suffix (1M tokens).
+
+  New "Model-Aware Strategy" sub-section adds three tiers:
+  - **1M context (Opus 4.7+ `[1m]`)**: relaxed delegation. Inline
+    single-file phases (≤300 LoC output). Group adjacent small
+    phases into one subagent — Phase 6 Auth + 6.5 Payments + 6.8
+    Upload can now be one subagent on 1M models (they were split
+    for context budget, not logical separation).
+  - **200K context** (default Opus/Sonnet): strict delegation
+    (existing rules 1-7, unchanged).
+  - **Haiku / smaller models**: aggressive delegation, subdivide
+    phases into ~5-file subagents, checkpoint to git after every
+    sub-step.
+
+  Includes guidance on what compaction checkpoints look like on
+  1M models (sparser, often not triggered at all for sub-2-hour
+  builds — that's expected and fine; the Stop hook is the real
+  autonomy mechanism).
+
+  Default behavior preserved: when in doubt, behave as if on 200K.
+  The relaxed 1M strategy is opt-in based on detected model.
+
 ## [1.1.6] — 2026-05-27
 
 ### Added
