@@ -486,3 +486,17 @@ After successful deployment:
 ║  Logs:      DEPLOY_LOG.md updated                            ║
 ╚══════════════════════════════════════════════════════════════╝
 ```
+
+---
+
+## Live Polling Mode (`/loop`)
+
+After kicking off a deploy you often want to watch it. Wrap the deploy with the built-in `/loop` skill instead of refreshing the dashboard manually:
+
+```
+/loop 30s /deploy --status-only
+```
+
+This re-runs `/deploy --status-only` every 30 seconds in your session, posting deploy state, smoke-test results, and the rollback command into the conversation. `/loop` self-paces (or accepts an explicit interval) and stops automatically when you cancel it or the deploy reaches a terminal state. Pair with `--monitor` if your deploy target emits a streaming log.
+
+Use this for short-lived monitoring (a single deploy). For recurring deploy verification (every release), schedule with `/schedule` instead — see the patterns in `/health-check`'s "Scheduled Execution" section.

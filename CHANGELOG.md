@@ -5,6 +5,34 @@ All notable changes to the Cortex plugin are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.6] — 2026-05-27
+
+### Added
+
+- **`/loop` integration as a complementary autonomy mechanism.**
+  Documents when to use Claude Code's built-in `/loop` skill versus
+  the existing shell-level `scripts/auto-loop.sh`. They are
+  complementary, not substitutes — kept both rather than replacing.
+
+  - `commands/auto-build.md`: new "Execution Mode" comparison table
+    inside the AUTONOMOUS EXECUTION ENGINE section. Three options
+    documented with their resilience characteristics and "best for"
+    use cases:
+    1. `scripts/auto-loop.sh` (most resilient — outside Claude,
+       survives crashes, has circuit breaker + backoff)
+    2. `/loop` (in-session — survives compaction via PreCompact hook
+       + Stop hook, lighter weight)
+    3. Stop hook only (minimal — relies entirely on in-Claude loop)
+  - `commands/deploy.md`: new "Live Polling Mode" section showing
+    `/loop 30s /deploy --status-only` for watching a deploy without
+    refreshing manually.
+  - `commands/perf-test.md`: new "Live Polling Mode" section for
+    in-session progress reports during long stress tests.
+
+  Recommendation in auto-build: use shell `auto-loop.sh` for any
+  build you'd be sad to lose if Claude crashed; use `/loop` for
+  everything else.
+
 ## [1.1.5] — 2026-05-27
 
 ### Added

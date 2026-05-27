@@ -1541,3 +1541,17 @@ Replace all `[X]` and `[N]` placeholders with actual values. If tests could not 
 - Results are saved to `tests/performance/results/` for historical comparison.
 - The bottleneck detection step checks for the 6 most common FastAPI performance issues.
 - Run smoke tests on every PR, load tests nightly, stress tests weekly.
+
+---
+
+## Live Polling Mode (`/loop`)
+
+For long-running load tests, wrap `/perf-test` with the built-in `/loop` skill to get periodic progress reports in-session without manually re-running:
+
+```
+/loop 60s /perf-test --status-only
+```
+
+This re-runs `/perf-test --status-only` every 60 seconds, posting current RPS, error rate, p95/p99 latency, and active VU count into the conversation. Useful for staying engaged with a long stress test without leaving the session.
+
+For nightly/weekly recurring runs (the "automated CI suite" pattern), use `/schedule` — see `/security-scan`'s "Scheduled Execution" section for the cron-style pattern.

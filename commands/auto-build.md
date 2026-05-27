@@ -275,6 +275,40 @@ api/ ──► services/ ──► repositories/ ──► models/ + db/
 5. **Quality gates**: ruff + mypy + pytest must pass between phases.
 6. **ENFORCE layer segregation** — if you catch api/ importing from repositories/ directly, FIX IT.
 
+### Execution Mode — Shell loop vs `/loop` vs Stop-hook only
+
+The autonomous loop above runs INSIDE Claude. For long builds you can wrap it with an additional outer loop for shell-level resilience. Three options, in decreasing order of robustness:
+
+| Mechanism | Where it runs | Survives | Best for |
+|-----------|---------------|----------|----------|
+| **`scripts/auto-loop.sh`** | Outside Claude (separate shell) | Claude crashes, OS reboots (with systemd), rate-limit retries with backoff, circuit breaker on consecutive errors | Full product builds (>4 hours), production scaffolding, builds you want to leave overnight |
+| **`/loop` skill** (built-in to Claude Code) | Inside the current Claude session | Compaction (state survives via PreCompact hook), Stop hook re-firing | Small features, prototypes, dev-mode iteration, builds <2 hours |
+| **Stop hook only** (no outer wrapper) | Inside the current Claude session | Just the Stop hook blocks early exit | Single-phase builds, demos, when you want to observe every action |
+
+**How to invoke each:**
+
+```bash
+# Most resilient — shell loop wraps Claude in a restart-on-crash supervisor
+bash scripts/auto-loop.sh ./PRD.md --max-iterations 100
+# Optional: tmux + --monitor flag to watch progress in a split pane
+```
+
+```
+# Lighter weight — Claude schedules its own re-invocation every interval
+/loop 60s /auto-build ./PRD.md
+# /loop re-fires /auto-build every 60s; the Stop hook still prevents early
+# exit; /loop has its own iteration cap (see /loop --help).
+```
+
+```
+# Minimal — single invocation, Stop hook is the only autonomy mechanism
+/auto-build ./PRD.md
+# No outer scheduler — relies entirely on the in-Claude autonomous loop
+# above. If Claude crashes you start from the last AUTO_BUILD_STATE.json.
+```
+
+**Recommendation**: use `scripts/auto-loop.sh` for any build you'd be sad to lose if Claude crashed. Use `/loop` for everything else. The Stop hook is always active regardless of which outer mechanism you pick.
+
 ---
 
 
