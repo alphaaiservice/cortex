@@ -71,6 +71,23 @@ This command safely migrates technology components in an existing application to
 
 ---
 
+## Step 0: Safety — Worktree Isolation (MANDATORY before any mutation)
+
+> **📖 CANONICAL REFERENCE**: `commands/references/WORKTREE_SAFETY.md` defines the safety decision tree for all file-mutation commands. Load it and follow it BEFORE any `Write` / `Edit` / `Bash` mutation in this run.
+
+Stack migrations are the highest-risk operation in this plugin — they touch the database, the ORM, the API surface, and often the deployment topology all at once. Running in an isolated worktree is non-negotiable for anything but trivial linter swaps.
+
+Quick summary (full tree + rationale in the reference file):
+
+1. **Confirm scope with the user**, then ask: isolated worktree (DEFAULT, strongly recommended) vs current checkout (only acceptable for tiny linter swaps like flake8→ruff) vs cancel.
+2. **Isolated worktree** (default): either spawn the mutation phase as `Agent({ ..., isolation: "worktree" })`, OR manually `git worktree add ../<repo>-migrate-$(date +%s) -b migrate/auto`. After completion, show the diff and let the user merge / cherry-pick / discard.
+3. **Current checkout** (only with explicit user opt-in AND the migration is rated 🟢 Small): refuse if `git status --porcelain` is non-empty; create a savepoint commit before any mutation.
+4. **No git**: refuse to proceed.
+
+Migrations rated 🟡 Medium, 🔴 Large, or ⚫ XL in the table above **MUST** run in an isolated worktree — do not offer the current-checkout option for these.
+
+---
+
 ## Step 1: Analyze Current Implementation
 
 For the requested migration, deeply understand what exists:

@@ -5,6 +5,33 @@ All notable changes to the Cortex plugin are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] — 2026-05-27
+
+### Added
+
+- **Worktree-safety preamble for risky file-mutation commands.**
+  `/migrate-stack`, `/refactor`, and `/retrofit` now have a mandatory
+  Step 0 that runs a safety decision tree before any `Write`/`Edit`/`Bash`
+  mutation. The default execution mode for all three is now an isolated
+  git worktree (either via `Agent({ isolation: "worktree" })` when
+  delegating, or a manual `git worktree add` when running inline).
+  This protects the user's main checkout from botched runs.
+
+  New canonical reference: `commands/references/WORKTREE_SAFETY.md`
+  defines the decision tree. Each of the 3 commands cites it with a
+  short summary inline (DRY pattern matching `AUTO_BUILD_STACK.md`).
+
+  Per-command nuances:
+  - `/migrate-stack` — isolated worktree is non-negotiable for
+    migrations rated 🟡 Medium / 🔴 Large / ⚫ XL. Current-checkout
+    mode is only offered for trivial swaps like flake8→ruff.
+  - `/refactor` — existing "Pre-Flight Validation" renamed to Step 0.5;
+    new Step 0 handles worktree decision first.
+  - `/retrofit` — current-checkout only acceptable for a single small
+    feature. `--all` and `--from-gap-analysis` force isolated worktree.
+
+  All three refuse to proceed when there's no git repository at all.
+
 ## [1.1.2] — 2026-05-27
 
 ### Changed

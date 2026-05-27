@@ -18,7 +18,22 @@ If no target is provided, default to the current working directory.
 
 ---
 
-## Step 0: Pre-Flight Validation
+## Step 0: Safety — Worktree Isolation (MANDATORY before any mutation)
+
+> **📖 CANONICAL REFERENCE**: `commands/references/WORKTREE_SAFETY.md` defines the safety decision tree for all file-mutation commands. Load it and follow it BEFORE any `Write` / `Edit` / `Bash` mutation in this run.
+
+Quick summary (full tree + rationale in the reference file):
+
+1. **Confirm scope with the user**, then ask: isolated worktree (DEFAULT, recommended) vs current checkout (risky, requires opt-in) vs cancel.
+2. **Isolated worktree** (default): either spawn the mutation phase as `Agent({ ..., isolation: "worktree" })`, OR manually `git worktree add ../<repo>-refactor-$(date +%s) -b refactor/auto`. After completion, show the diff and let the user merge / cherry-pick / discard.
+3. **Current checkout** (only with explicit user opt-in): refuse if `git status --porcelain` is non-empty; create a savepoint commit before any mutation so rollback is `git reset --hard HEAD~1`.
+4. **No git**: refuse to proceed.
+
+Never start mutating files before completing this decision tree.
+
+---
+
+## Step 0.5: Pre-Flight Validation
 
 Before doing anything, validate the environment:
 
