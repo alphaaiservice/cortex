@@ -488,3 +488,47 @@ claude --plugin-dir ~/claude-plugins/cortex
 19. **Performance auto-enforced** — performance skill triggers on DB queries, caching, async code
 20. **DevOps auto-enforced** — devops skill triggers on Docker, CI/CD, K8s, infra code
 21. **Agent Teams support (experimental)** — when `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set, parallel-builder, code-review, debug, and auto-build upgrade to real multi-agent coordination with shared task lists, inter-agent messaging, TeammateIdle reassignment, and TaskCompleted quality gate hooks
+
+---
+
+## Future Work (Explicitly Deferred — Don't Re-propose Without New Signal)
+
+These items came up during the v1.0 → v1.3.1 improvement sweep on 2026-05-27
+and were explicitly deferred. They are NOT forgotten — they are intentional
+"not now" decisions. Do not re-propose them in a future session unless new
+signal arrives (user request, real demand, or new tooling).
+
+### Telemetry (deferred 2026-05-27)
+- **Status**: Deferred — revisit when there's actual signal that usage data is needed
+- **Why deferred**: No current evidence we need it. Cortex usage is internal +
+  early-adopter. Telemetry adds hosting cost, privacy policy obligations, and
+  install-rate friction. Cost > benefit until there's a real prioritization
+  question we can't answer without data.
+- **When to revisit**: When the team can't decide which of N commands to invest
+  in next, or when adoption metrics become part of a business goal.
+- **Reference design** (if/when we do it): Opt-in PostHog (self-hosted),
+  command-name + outcome only, no PRD content / no code / no file paths.
+  Implementation surface: a tracking module, a `/cortex-telemetry on` command,
+  a docs page, env-var config. ~6 hours.
+
+### MCP server FOR Cortex itself (deferred 2026-05-27)
+- **Status**: Deferred — Cortex commands already expose this data via slash
+  commands; an MCP server is for cross-tool consumption (Cursor users, Zed,
+  etc.). Build when there's actual demand from non-Claude-Code clients.
+- **What it would do**: Expose Cortex project state (`AUTO_BUILD_STATE.json`,
+  cost estimates, sprint progress, phase status, gap-analysis results) as
+  MCP resources + tools so external AI tools can query and act on Cortex-
+  managed projects without running Cortex itself.
+- **When to revisit**: When a user explicitly asks "how do I use Cortex from
+  Cursor / Zed / another agent", OR when we want to ship an Anthropic-blessed
+  reference MCP server for SDLC workflows.
+- **How to build it**: Eat our own dogfood — `/init-mcp-server cortex-mcp
+  --lang=python --with-tools --with-resources`, then customize. ~3-5 hours.
+  Note that `/init-mcp-server` was added in v1.3.0 specifically to make this
+  trivial when the time comes.
+
+### Don't re-add to the v1.x backlog without
+
+A specific user request, observable adoption blocker, or new tooling that
+changes the cost/benefit. Otherwise the punch list is closed — the plugin
+is at a healthy steady state.
