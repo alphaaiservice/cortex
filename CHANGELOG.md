@@ -1,0 +1,89 @@
+# Changelog
+
+All notable changes to the Cortex plugin are documented in this file.
+
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
+this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.1.0] — 2026-05-27
+
+### Added
+
+**Analysis & Intelligence commands (5)**
+- `/suggest-ai-features` — scans an existing codebase and recommends where AI/ML
+  can add value, producing a prioritized `AI_ENHANCEMENT_PLAN.md`.
+- `/ai-upgrade` — implementation counterpart to `/suggest-ai-features`; adds
+  AI capabilities to a single named feature (search, metrics, catalog, ...).
+- `/trace-impact` — full-stack blast-radius analysis for a proposed change
+  (DB → service → API → frontend) with severity-tagged migration plan.
+- `/estimate-cost` — projects infra + API costs at 100 / 1K / 10K / 100K users
+  and compares service alternatives (Stripe vs Razorpay, GPT-4 vs Claude, etc).
+- `/feature-map` — builds a visual feature-dependency map of the codebase
+  as a Mermaid diagram.
+
+**Subagents (2)**
+- `feature-analyzer` (Priya Sharma) — dissects existing codebases, maps
+  features to code, surfaces architectural patterns and anti-patterns.
+- `ai-integration-specialist` (Marcus Chen) — designs and implements LLM
+  integration, vector search, semantic analysis with cost awareness.
+
+**Auto-invoked skills (5)**
+- `cost-estimator` — triggers on cost / pricing / budget questions.
+- `dependency-mapper` — triggers on architecture / coupling / refactor planning.
+- `feature-impact-analysis` — triggers on schema changes, migrations, deprecations.
+- `metric-recommender` — triggers on monitoring / KPI / observability planning.
+- `smart-retrofit` — triggers on "add AI to X" / "make X smarter" requests.
+
+**Reference documentation (2)**
+- `skills/alpha-architecture/references/CODE_PATTERNS_GENAI.md` — GenAI code
+  patterns (LiteLLM, agent frameworks, structured output, evaluation).
+- `skills/alpha-architecture/references/RAG_BEST_PRACTICES.md` — RAG pipeline
+  best practices (chunking, embeddings, re-ranking, agentic retrieval).
+
+**Auto-build phases**
+- Phase 9l — Frontend Smoke Tests (Vitest + React Testing Library + Playwright)
+  now MANDATORY for every web frontend.
+- Phase 9.6 — Chrome Extension Build + Smoke Tests (MV3, conditional on PRD).
+- Phase 10 — Analytics + Feature Flags + Growth split out as a discrete phase.
+- Phase 12 — Security + Compliance + Polish elevated to a named phase.
+
+**Agent Teams hooks (experimental)**
+- `TeammateIdle` — reassigns pending tasks to idle teammates (exit code 2
+  keeps them working).
+- `TaskCompleted` — quality gate that rejects task output containing
+  unresolved TODO/FIXME markers, skipped tests, or hardcoded secrets.
+
+**Plugin manifest**
+- `plugin.json` now carries `homepage`, `repository`, `license`, `category`,
+  `keywords`, and `tags` for richer marketplace cards.
+
+### Changed
+
+- `auto-build.md` phase outline updated to reflect the reorganized 15-phase
+  flow (Phase 9l smoke tests, 9.6 Chrome extension, 10 analytics, 12 security).
+- `marketplace.json` plugin description corrected: `14 skills, 7 hooks`
+  (previously stale at `9 skills, 6 hooks`).
+- `plugin.json` description corrected: `14 skills, 7 hooks, 14 reference docs`
+  (previously stale at `9 skills, 6 hooks`).
+
+### Removed
+
+- `commands/auto-build.md.backup` (288 KB stale snapshot from 2026-03-01 that
+  was shipping to every install).
+
+## [1.0.0] — 2026-02-22
+
+Initial release of Cortex (renamed from AlphaForge).
+
+- 37 slash commands covering planning, scaffolding, building, quality,
+  shipping, and DevOps for Python/FastAPI, Node.js/NestJS, and Java/Spring Boot.
+- 11 specialized subagents (architect, brand-designer, security-auditor,
+  onboarding-mentor, test-strategist, parallel-builder, self-healer,
+  db-optimizer, devops-engineer, performance-profiler, documentation-writer).
+- 9 auto-invoked skills (alpha-architecture + project-setup, onboarding,
+  code-review, testing, deployment, security, devops, performance).
+- 6 hooks (PreToolUse safety check, SessionStart context, PostToolUse
+  formatter for Write + Edit, Stop autonomy loop, PreCompact checkpoint).
+- 4 DevOps commands added late-cycle: `/backup-dr`, `/env-sync`,
+  `/feature-flags`, `/audit-setup`.
+- Full autonomy: PreCompact hook, auto-resume, state recovery, stall detection.

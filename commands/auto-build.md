@@ -438,7 +438,7 @@ Create `AUTO_BUILD_STATE.json`:
 
 > **📖 REFERENCE FILE**: Read `commands/references/AUTO_BUILD_PHASES.md` for all phase definitions.
 >
-> It contains (872 lines):
+> It contains (~1,550 lines):
 >
 > - **Phase 1**: Project Structure & Configuration
 > - **Phase 2**: Environment & Dependencies
@@ -451,12 +451,15 @@ Create `AUTO_BUILD_STATE.json`:
 > - **Phase 7**: API Layer (REST + GraphQL)
 > - **Phase 8**: Middleware & Cross-Cutting Concerns
 > - **Phase 9**: Frontend Web (Next.js pages, components, state)
-> - **Phase 10**: Frontend Mobile (React Native + Expo)
-> - **Phase 11**: GenAI / Agentic AI (LiteLLM, RAG, agents, MCP, A2A)
-> - **Phase 12**: Testing (unit, integration, E2E, performance, AI eval)
-> - **Phase 13**: DevOps (Docker, CI/CD, monitoring)
-> - **Phase 14**: Documentation (README, API docs, architecture)
-> - **Phase 15**: Final Quality Gates & Polish
+> - **Phase 9l**: Frontend Smoke Tests (Vitest + Playwright — MANDATORY)
+> - **Phase 9.5**: Frontend Mobile (React Native + Expo)
+> - **Phase 9.6**: Chrome Extension Build + Smoke Tests (MV3 — conditional)
+> - **Phase 10**: Analytics + Feature Flags + Growth
+> - **Phase 11**: Testing (unit, integration, E2E, performance)
+> - **Phase 12**: Security + Compliance + Polish
+> - **Phase 13**: Documentation (README, API docs, architecture)
+> - **Phase 14**: CI/CD & Docker
+> - **Phase 15**: Final Validation
 >
 > **Phase Ownership Matrix** (who builds what in parallel mode):
 > ```

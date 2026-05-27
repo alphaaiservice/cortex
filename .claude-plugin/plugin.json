@@ -1,9 +1,40 @@
 {
   "name": "cortex",
-  "description": "Cortex — SDLC Automation Engine. 37 commands, 11 agents, 9 skills, 6 hooks. Forge production-ready software from idea to deployment with zero human intervention.",
-  "version": "1.0.0",
+  "description": "Cortex — SDLC Automation Engine. 45 commands, 13 agents, 14 skills, 7 hooks, 14 reference docs. Forge production-ready software from idea to deployment with zero human intervention.",
+  "version": "1.1.0",
   "author": {
     "name": "Alpha AI Service Pvt Ltd",
     "email": "info@alphaaiservice.com"
-  }
+  },
+  "homepage": "https://alphaaiservice.com/cortex",
+  "repository": "https://github.com/alphaaiservice/cortex",
+  "license": "Proprietary",
+  "category": "Development Tools",
+  "keywords": [
+    "sdlc",
+    "devops",
+    "autonomous-build",
+    "code-review",
+    "testing",
+    "deployment",
+    "fastapi",
+    "nestjs",
+    "spring-boot",
+    "genai",
+    "rag",
+    "mcp",
+    "a2a",
+    "agent-teams",
+    "ci-cd",
+    "security-scan",
+    "project-scaffold",
+    "branding"
+  ],
+  "tags": [
+    "sdlc-automation",
+    "code-quality",
+    "devops",
+    "ai-agents",
+    "testing"
+  ]
 }

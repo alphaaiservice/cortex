@@ -21,7 +21,7 @@ cortex/
 │   ├── plugin.json              # Plugin metadata (name, version, author)
 │   └── marketplace.json         # Marketplace catalog (for distribution via alphaaiservice/cortex)
 │
-├── commands/                     # SLASH COMMANDS — user invokes with /command-name (41 total)
+├── commands/                     # SLASH COMMANDS — user invokes with /command-name (45 total)
 │   │
 │   │  # ── Planning & Research ──
 │   ├── gen-prd.md               # /gen-prd — Generate PRD from brief idea
@@ -77,10 +77,17 @@ cortex/
 │   ├── api-docs.md              # /api-docs — Generate API documentation
 │   ├── onboard-dev.md           # /onboard-dev — Onboard new developer
 │   │
+│   │  # ── Analysis & Intelligence ──
+│   ├── suggest-ai-features.md   # /suggest-ai-features — Scan codebase, recommend AI/ML enhancements
+│   ├── trace-impact.md          # /trace-impact — Trace blast radius of a code change across full stack
+│   ├── estimate-cost.md         # /estimate-cost — Estimate infra + API costs at 3 scales
+│   ├── feature-map.md           # /feature-map — Build visual feature dependency map with Mermaid
+│   ├── ai-upgrade.md            # /ai-upgrade — Implement AI capabilities on an existing feature
+│   │
 │   │  # ── Maintenance ──
 │   └── dep-update.md            # /dep-update — Auto-update dependencies safely
 │
-├── agents/                       # SUBAGENTS — spawned via Agent tool for parallel work (11 total)
+├── agents/                       # SUBAGENTS — spawned via Agent tool for parallel work (13 total)
 │   ├── architect.md             # Architecture analysis and design reviews
 │   ├── brand-designer.md        # SVG logo generation, color systems, brand identity
 │   ├── security-auditor.md      # Vulnerability scanning, secret detection
@@ -91,7 +98,9 @@ cortex/
 │   ├── db-optimizer.md          # Slow query analysis, missing indexes, N+1 detection
 │   ├── devops-engineer.md       # CI/CD, Docker, K8s, Terraform, deployment automation
 │   ├── performance-profiler.md  # API profiling, N+1 detection, bottleneck analysis
-│   └── documentation-writer.md  # README, architecture docs, API reference, guides
+│   ├── documentation-writer.md  # README, architecture docs, API reference, guides
+│   ├── feature-analyzer.md      # Codebase analysis, feature discovery, dependency mapping
+│   └── ai-integration-specialist.md # AI/ML integration, LLM setup, vector search, cost tracking
 │
 ├── skills/                       # SKILLS — auto-invoked by Claude (Agent Skills open standard, 9 total)
 │   ├── alpha-architecture/      # ⭐ MOST IMPORTANT — enforces tech stack + layer rules

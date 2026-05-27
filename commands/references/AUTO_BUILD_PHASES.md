@@ -469,6 +469,213 @@ Fix any issues found during verification before proceeding.
 
 **Commit:** `feat(frontend): complete Next.js with all modern features and quality verification`
 
+### Phase 9l: Frontend Smoke Tests (MANDATORY)
+
+**⚡ DELEGATE TO SUBAGENT** — smoke tests MUST be generated for EVERY web frontend.
+
+Generate smoke test files that verify core functionality works. These run fast (<30s) and catch critical regressions before deployment.
+
+**Tech**: Vitest + React Testing Library (component smoke) + Playwright (browser smoke)
+
+**Files to create**:
+```
+frontend/
+├── vitest.config.ts                       # Vitest config for Next.js/React
+├── playwright.config.ts                   # Playwright config for smoke tests
+├── tests/
+│   ├── setup.ts                           # Test providers wrapper (theme, query, router)
+│   ├── smoke/
+│   │   ├── pages.smoke.test.tsx           # Every page renders without crash
+│   │   ├── auth-flow.smoke.test.tsx       # Login redirect, protected routes, logout
+│   │   ├── navigation.smoke.test.tsx      # All routes resolve to correct page
+│   │   ├── api-client.smoke.test.ts       # withCredentials, refresh interceptor, CSRF
+│   │   ├── dark-mode.smoke.test.tsx       # Theme toggle: light → dark → system
+│   │   ├── responsive.smoke.test.tsx      # Key pages render at 320px and 1440px
+│   │   └── forms.smoke.test.tsx           # Key forms render, submit buttons exist
+│   └── e2e/
+│       └── smoke.spec.ts                  # Playwright: browser-level smoke tests
+```
+
+**Smoke Test Rules**:
+```
+✅ Every page component MUST have a render smoke test
+✅ Auth smoke: unauthenticated user → redirected to /login
+✅ Auth smoke: authenticated user on /login → redirected to /dashboard
+✅ API client: withCredentials=true, 401 refresh interceptor wired
+✅ Dark mode: toggles between light/dark/system, no unstyled flash
+✅ Forms: all forms render with expected fields + submit button
+✅ Error boundary: error.tsx renders fallback on component crash
+✅ Loading state: loading.tsx renders skeleton (not blank/spinner)
+✅ 404 page: invalid routes show not-found page
+✅ Responsive: pages don't overflow at 320px viewport
+
+❌ Do NOT test implementation details — only user-visible behavior
+❌ Do NOT test every edge case — smoke tests catch "is it working at all?"
+❌ Do NOT require running backend — mock API responses for component tests
+```
+
+**Vitest Smoke Test Pattern**:
+```typescript
+// tests/smoke/pages.smoke.test.tsx
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { TestProviders } from '../setup';
+
+// Import ALL page components
+import LoginPage from '@/app/(auth)/login/page';
+import RegisterPage from '@/app/(auth)/register/page';
+import DashboardPage from '@/app/(dashboard)/page';
+import SettingsPage from '@/app/(dashboard)/settings/page';
+
+describe('Page Smoke Tests — every page renders without crash', () => {
+  it('login page renders with sign-in button', () => {
+    render(<TestProviders><LoginPage /></TestProviders>);
+    expect(screen.getByRole('button', { name: /sign in|log in/i })).toBeInTheDocument();
+  });
+
+  it('register page renders with create account button', () => {
+    render(<TestProviders><RegisterPage /></TestProviders>);
+    expect(screen.getByRole('button', { name: /sign up|create|register/i })).toBeInTheDocument();
+  });
+
+  it('dashboard page renders', () => {
+    render(<TestProviders><DashboardPage /></TestProviders>);
+    expect(document.querySelector('[data-testid="dashboard"]')).toBeInTheDocument();
+  });
+
+  it('settings page renders', () => {
+    render(<TestProviders><SettingsPage /></TestProviders>);
+    expect(screen.getByText(/settings/i)).toBeInTheDocument();
+  });
+
+  // Agent: add one test per page in the app
+});
+```
+
+```typescript
+// tests/smoke/auth-flow.smoke.test.tsx
+import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { TestProviders } from '../setup';
+
+describe('Auth Flow Smoke Tests', () => {
+  it('unauthenticated user sees login form', () => {
+    // Mock: no auth cookie / no user session
+    render(<TestProviders authenticated={false}><DashboardPage /></TestProviders>);
+    // Should redirect or show login prompt
+    expect(screen.queryByText(/sign in|log in|unauthorized/i)).toBeTruthy();
+  });
+
+  it('login form has email and password fields', () => {
+    render(<TestProviders><LoginPage /></TestProviders>);
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+  });
+
+  it('register form has name, email, password, and confirm password', () => {
+    render(<TestProviders><RegisterPage /></TestProviders>);
+    expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getAllByLabelText(/password/i).length).toBeGreaterThanOrEqual(2);
+  });
+});
+```
+
+```typescript
+// tests/smoke/api-client.smoke.test.ts
+import { describe, it, expect } from 'vitest';
+import api from '@/lib/api';
+
+describe('API Client Smoke Tests', () => {
+  it('has withCredentials enabled', () => {
+    expect(api.defaults.withCredentials).toBe(true);
+  });
+
+  it('has baseURL configured', () => {
+    expect(api.defaults.baseURL).toBeTruthy();
+  });
+
+  it('has response interceptor for 401 refresh', () => {
+    const interceptors = api.interceptors.response as any;
+    expect(interceptors.handlers.length).toBeGreaterThan(0);
+  });
+});
+```
+
+```typescript
+// tests/smoke/dark-mode.smoke.test.tsx
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { ThemeProvider } from 'next-themes';
+
+describe('Dark Mode Smoke Tests', () => {
+  it('renders without theme flash (has suppressHydrationWarning)', () => {
+    // Verify the html element has suppressHydrationWarning for theme
+    // This prevents the white flash on dark mode page load
+    const { container } = render(
+      <ThemeProvider attribute="class" defaultTheme="system">
+        <div data-testid="themed">Content</div>
+      </ThemeProvider>
+    );
+    expect(container).toBeTruthy();
+  });
+});
+```
+
+**Playwright Browser Smoke Tests**:
+```typescript
+// tests/e2e/smoke.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Web App Browser Smoke Tests', () => {
+  test('landing page loads with content', async ({ page }) => {
+    await page.goto('/');
+    await expect(page).toHaveTitle(/.+/);
+    await expect(page.locator('body')).toBeVisible();
+  });
+
+  test('login page loads with form', async ({ page }) => {
+    await page.goto('/login');
+    await expect(page.getByRole('button', { name: /sign in|log in/i })).toBeVisible();
+  });
+
+  test('unauthenticated dashboard redirects to login', async ({ page }) => {
+    await page.goto('/dashboard');
+    await expect(page).toHaveURL(/.*login.*/);
+  });
+
+  test('404 page renders for invalid route', async ({ page }) => {
+    await page.goto('/nonexistent-page-xyz-404');
+    await expect(page.getByText(/not found|404/i)).toBeVisible();
+  });
+
+  test('register page loads with form', async ({ page }) => {
+    await page.goto('/register');
+    await expect(page.getByRole('button', { name: /sign up|create|register/i })).toBeVisible();
+  });
+
+  test('page renders at mobile viewport (320px)', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 568 });
+    await page.goto('/');
+    // No horizontal overflow
+    const body = page.locator('body');
+    const box = await body.boundingBox();
+    expect(box!.width).toBeLessThanOrEqual(320);
+  });
+});
+```
+
+```bash
+# Run frontend smoke tests
+cd frontend
+pnpm vitest run tests/smoke/
+npx playwright test tests/e2e/smoke.spec.ts --project=chromium
+```
+
+**Commit:** `test(frontend): smoke tests — page rendering, auth flow, API client, dark mode, responsive`
+
+---
+
 ## PHASE 9.5: MOBILE APP (if React Native needed)
 
 **⚡ DELEGATE TO SUBAGENT(S)** — spawn 2-3 Tasks (setup+nav, screens+UI, push+offline can be parallel).
@@ -605,6 +812,478 @@ Fix any issues found during verification before proceeding.
 - App versioning: semver with auto-increment buildNumber/versionCode
 **Commit:** `chore(mobile): app store readiness + EAS CI/CD pipeline`
 
+---
+
+## PHASE 9.6: CHROME EXTENSION (if MV3 extension detected)
+
+**Auto-detect**: Spawn this phase if ANY of these exist:
+- `manifest.json` with `"manifest_version": 3`
+- `extension/` or `src/background/` or `src/content/` directories
+- PRD mentions "Chrome extension", "browser extension", "MV3", or "sidepanel"
+
+**⚡ DELEGATE TO SUBAGENT(S)** — assign to Extension Squad (Aditya + Dmitri + Mika + Hana + Oscar) if Agent Teams enabled.
+Otherwise spawn 2-3 Agent subagents (setup+core, UI+features, tests).
+
+**IMPORTANT**: Load `skills/alpha-architecture/references/CODE_PATTERNS_CHROME_EXTENSION.md` — it has ALL MV3 patterns, message passing, storage, security, and testing code examples.
+
+### Phase 9.6a: Extension Project Setup
+
+```bash
+# If extension/ directory doesn't exist yet
+mkdir -p extension
+cd extension
+pnpm init
+pnpm add react react-dom
+pnpm add -D typescript vite @vitejs/plugin-react @types/react @types/react-dom @types/chrome
+pnpm add -D tailwindcss postcss autoprefixer
+pnpm add -D vitest @testing-library/react @testing-library/jest-dom jsdom
+```
+
+Create project structure:
+```
+extension/
+├── manifest.json                    # MV3 manifest (permissions, content_scripts, background)
+├── vite.config.ts                   # Main build (popup/sidepanel)
+├── vite.background.config.ts        # Background service worker build
+├── vite.content.config.ts           # Content script build
+├── tsconfig.json                    # TypeScript config
+├── tailwind.config.ts               # Tailwind config
+├── vitest.config.ts                 # Vitest config for extension testing
+├── src/
+│   ├── popup/                       # Extension popup UI (React)
+│   │   ├── Popup.tsx
+│   │   ├── index.tsx
+│   │   └── index.html
+│   ├── sidepanel/                   # Sidepanel UI (React, if needed)
+│   │   ├── SidePanel.tsx
+│   │   ├── index.tsx
+│   │   └── index.html
+│   ├── options/                     # Options page (React)
+│   │   ├── Options.tsx
+│   │   ├── index.tsx
+│   │   └── index.html
+│   ├── background/                  # Service worker (NO DOM, NO React)
+│   │   ├── index.ts                 # Main service worker entry
+│   │   ├── message-router.ts        # chrome.runtime.onMessage handler
+│   │   └── api-client.ts            # Backend API calls from background
+│   ├── content/                     # Content scripts (injected into web pages)
+│   │   ├── index.ts                 # Main content script entry
+│   │   ├── dom-observer.ts          # MutationObserver for page changes
+│   │   └── injected.ts              # Injected into page context (if needed)
+│   ├── shared/                      # Shared code (used by all contexts)
+│   │   ├── types/
+│   │   │   ├── messages.ts          # Message type definitions + type guards
+│   │   │   └── storage.ts           # Storage schema types
+│   │   ├── utils/
+│   │   │   ├── storage.ts           # Typed chrome.storage wrapper
+│   │   │   └── messaging.ts         # Typed message sender/receiver
+│   │   └── constants.ts             # Shared constants
+│   └── __tests__/                   # Test files
+│       ├── setup.ts                 # Chrome API mocks
+│       └── smoke/                   # Smoke tests (see Phase 9.6f)
+├── public/
+│   ├── icons/                       # Extension icons (16, 32, 48, 128)
+│   └── logo.svg
+└── dist/                            # Build output (loaded as unpacked extension)
+```
+
+**Commit:** `feat(extension): MV3 project setup — Vite + React + TypeScript + Tailwind`
+
+### Phase 9.6b: Manifest & Background Service Worker
+
+Create `manifest.json` (MV3):
+```json
+{
+  "manifest_version": 3,
+  "name": "{product_name}",
+  "version": "1.0.0",
+  "description": "{product_description}",
+  "permissions": ["storage", "activeTab", "sidePanel"],
+  "host_permissions": ["{backend_url}/*"],
+  "background": { "service_worker": "background.js", "type": "module" },
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["content.js"],
+    "run_at": "document_idle"
+  }],
+  "action": { "default_popup": "popup.html", "default_icon": { "16": "icons/icon-16.png", "32": "icons/icon-32.png" } },
+  "side_panel": { "default_path": "sidepanel.html" },
+  "options_page": "options.html",
+  "icons": { "16": "icons/icon-16.png", "48": "icons/icon-48.png", "128": "icons/icon-128.png" }
+}
+```
+
+Background service worker — message router pattern:
+```typescript
+// src/background/index.ts
+import { handleMessage } from './message-router';
+
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install') {
+    chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+  }
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  handleMessage(message, sender).then(sendResponse);
+  return true; // Keep channel open for async response
+});
+```
+
+**Commit:** `feat(extension): MV3 manifest + background service worker + message router`
+
+### Phase 9.6c: Content Scripts & DOM Interaction
+
+Content script for page interaction:
+- DOM observation (MutationObserver for SPA page changes)
+- Element selection / highlighting
+- Page data extraction
+- Message passing to background service worker
+
+**Commit:** `feat(extension): content scripts — DOM observer, element selector, page extraction`
+
+### Phase 9.6d: Popup, Sidepanel & Options UI
+
+Build React UI for all extension surfaces:
+- **Popup**: Quick actions, status display, navigation to sidepanel
+- **Sidepanel**: Main extension UI (full-featured, persists across tabs)
+- **Options**: Settings, API key management, preferences
+
+Apply brand colors from `BRAND_GUIDE.md`. Dark mode support via Tailwind `dark:` classes.
+
+**Commit:** `feat(extension): popup, sidepanel, and options page UI with React + Tailwind`
+
+### Phase 9.6e: Extension Build & Verification
+
+Multi-target Vite build:
+```bash
+# Build all targets
+pnpm run build
+# Verify dist/ has all required files
+ls dist/popup.html dist/sidepanel.html dist/options.html dist/background.js dist/content.js dist/manifest.json
+# Type check
+pnpm tsc --noEmit
+# Lint
+pnpm eslint src/ --ext .ts,.tsx --max-warnings 0
+```
+
+**Commit:** `feat(extension): multi-target Vite build — popup, sidepanel, background, content`
+
+### Phase 9.6f: Extension Smoke Tests (MANDATORY)
+
+**⚡ DELEGATE TO SUBAGENT** — smoke tests MUST be generated for EVERY Chrome extension.
+
+Generate smoke test files that verify the extension loads and core functionality works.
+
+**Tech**: Vitest + JSDOM + Chrome API Mocks (component/unit smoke) + Playwright (browser extension smoke)
+
+**Files to create**:
+```
+extension/
+├── vitest.config.ts                          # Already created in 9.6a
+├── src/__tests__/
+│   ├── setup.ts                              # Chrome API mocks (storage, runtime, tabs)
+│   └── smoke/
+│       ├── manifest.smoke.test.ts            # Manifest validity checks
+│       ├── popup.smoke.test.tsx              # Popup renders without crash
+│       ├── sidepanel.smoke.test.tsx          # Sidepanel renders without crash
+│       ├── options.smoke.test.tsx            # Options page renders without crash
+│       ├── background.smoke.test.ts          # Service worker message handler responds
+│       ├── content-script.smoke.test.ts      # Content script initializes without error
+│       ├── messaging.smoke.test.ts           # Message passing between contexts works
+│       ├── storage.smoke.test.ts             # Chrome storage read/write works
+│       └── build-output.smoke.test.ts        # Build produces all required files
+```
+
+**Extension Smoke Test Rules**:
+```
+✅ Manifest has required MV3 fields (manifest_version=3, background.service_worker)
+✅ Popup component renders without crashing
+✅ Sidepanel component renders without crashing
+✅ Options page renders without crashing
+✅ Background message router handles known message types
+✅ Background message router returns error for unknown types
+✅ Content script init function runs without throwing
+✅ Chrome storage wrapper reads/writes correctly (mocked)
+✅ Message passing: content → background → response round-trip
+✅ Build output contains: manifest.json, popup.html, background.js, content.js
+✅ All icons exist at required sizes (16, 32, 48, 128)
+
+❌ Do NOT test actual Chrome APIs in unit tests — mock chrome.* namespace
+❌ Do NOT require a running browser for unit smoke tests
+❌ Do NOT test third-party API responses — mock backend calls
+```
+
+**Chrome API Mock Setup**:
+```typescript
+// src/__tests__/setup.ts
+import { vi } from 'vitest';
+
+const mockStorage: Record<string, unknown> = {};
+
+const chrome = {
+  runtime: {
+    onInstalled: { addListener: vi.fn() },
+    onMessage: { addListener: vi.fn() },
+    sendMessage: vi.fn().mockImplementation((message, callback) => {
+      if (callback) callback({ success: true });
+      return Promise.resolve({ success: true });
+    }),
+    getURL: vi.fn((path: string) => `chrome-extension://mock-id/${path}`),
+    id: 'mock-extension-id',
+  },
+  storage: {
+    local: {
+      get: vi.fn().mockImplementation((keys) => {
+        if (typeof keys === 'string') return Promise.resolve({ [keys]: mockStorage[keys] });
+        return Promise.resolve(mockStorage);
+      }),
+      set: vi.fn().mockImplementation((items) => {
+        Object.assign(mockStorage, items);
+        return Promise.resolve();
+      }),
+      remove: vi.fn().mockImplementation((keys) => {
+        const keyArr = Array.isArray(keys) ? keys : [keys];
+        keyArr.forEach((k) => delete mockStorage[k]);
+        return Promise.resolve();
+      }),
+    },
+    sync: {
+      get: vi.fn().mockResolvedValue({}),
+      set: vi.fn().mockResolvedValue(undefined),
+    },
+  },
+  tabs: {
+    query: vi.fn().mockResolvedValue([{ id: 1, url: 'https://example.com' }]),
+    sendMessage: vi.fn().mockResolvedValue({ success: true }),
+  },
+  sidePanel: {
+    setPanelBehavior: vi.fn().mockResolvedValue(undefined),
+    open: vi.fn().mockResolvedValue(undefined),
+  },
+  action: {
+    onClicked: { addListener: vi.fn() },
+  },
+};
+
+vi.stubGlobal('chrome', chrome);
+
+export { chrome, mockStorage };
+```
+
+**Manifest Smoke Test**:
+```typescript
+// src/__tests__/smoke/manifest.smoke.test.ts
+import { describe, it, expect } from 'vitest';
+import manifest from '../../../manifest.json';
+
+describe('Manifest Smoke Tests', () => {
+  it('is MV3', () => {
+    expect(manifest.manifest_version).toBe(3);
+  });
+
+  it('has background service worker', () => {
+    expect(manifest.background?.service_worker).toBeTruthy();
+  });
+
+  it('has action with popup', () => {
+    expect(manifest.action?.default_popup).toBeTruthy();
+  });
+
+  it('has required icons', () => {
+    expect(manifest.icons?.['16']).toBeTruthy();
+    expect(manifest.icons?.['48']).toBeTruthy();
+    expect(manifest.icons?.['128']).toBeTruthy();
+  });
+
+  it('has content scripts defined', () => {
+    expect(manifest.content_scripts).toBeDefined();
+    expect(manifest.content_scripts!.length).toBeGreaterThan(0);
+  });
+
+  it('has required permissions', () => {
+    expect(manifest.permissions).toContain('storage');
+  });
+});
+```
+
+**UI Component Smoke Tests**:
+```typescript
+// src/__tests__/smoke/popup.smoke.test.tsx
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import Popup from '../../popup/Popup';
+
+describe('Popup Smoke Tests', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<Popup />);
+    expect(container).toBeTruthy();
+  });
+
+  it('has at least one interactive element', () => {
+    render(<Popup />);
+    const buttons = screen.queryAllByRole('button');
+    const links = screen.queryAllByRole('link');
+    expect(buttons.length + links.length).toBeGreaterThan(0);
+  });
+});
+```
+
+```typescript
+// src/__tests__/smoke/sidepanel.smoke.test.tsx
+import { render } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import SidePanel from '../../sidepanel/SidePanel';
+
+describe('SidePanel Smoke Tests', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<SidePanel />);
+    expect(container).toBeTruthy();
+  });
+
+  it('renders main content area', () => {
+    const { container } = render(<SidePanel />);
+    expect(container.querySelector('[data-testid="sidepanel-content"]') ||
+           container.firstChild).toBeTruthy();
+  });
+});
+```
+
+```typescript
+// src/__tests__/smoke/options.smoke.test.tsx
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import Options from '../../options/Options';
+
+describe('Options Page Smoke Tests', () => {
+  it('renders without crashing', () => {
+    const { container } = render(<Options />);
+    expect(container).toBeTruthy();
+  });
+
+  it('has a save/submit button', () => {
+    render(<Options />);
+    const saveBtn = screen.queryByRole('button', { name: /save|submit|apply/i });
+    expect(saveBtn).toBeTruthy();
+  });
+});
+```
+
+**Background & Messaging Smoke Tests**:
+```typescript
+// src/__tests__/smoke/background.smoke.test.ts
+import { describe, it, expect, vi } from 'vitest';
+import { handleMessage } from '../../background/message-router';
+
+describe('Background Message Router Smoke Tests', () => {
+  it('handles known message types without throwing', async () => {
+    const response = await handleMessage(
+      { type: 'PING' },
+      { id: 'test-sender' } as chrome.runtime.MessageSender
+    );
+    expect(response).toBeDefined();
+  });
+
+  it('returns error for unknown message type', async () => {
+    const response = await handleMessage(
+      { type: 'UNKNOWN_TYPE_XYZ' },
+      { id: 'test-sender' } as chrome.runtime.MessageSender
+    );
+    expect(response).toHaveProperty('error');
+  });
+});
+```
+
+```typescript
+// src/__tests__/smoke/messaging.smoke.test.ts
+import { describe, it, expect } from 'vitest';
+import { chrome } from '../setup';
+
+describe('Message Passing Smoke Tests', () => {
+  it('chrome.runtime.sendMessage resolves', async () => {
+    const response = await chrome.runtime.sendMessage({ type: 'PING' });
+    expect(response).toEqual({ success: true });
+  });
+
+  it('chrome.tabs.sendMessage resolves', async () => {
+    const response = await chrome.tabs.sendMessage(1, { type: 'GET_PAGE_DATA' });
+    expect(response).toEqual({ success: true });
+  });
+});
+```
+
+```typescript
+// src/__tests__/smoke/storage.smoke.test.ts
+import { describe, it, expect, beforeEach } from 'vitest';
+import { chrome, mockStorage } from '../setup';
+
+describe('Chrome Storage Smoke Tests', () => {
+  beforeEach(() => {
+    Object.keys(mockStorage).forEach((key) => delete mockStorage[key]);
+  });
+
+  it('writes and reads from local storage', async () => {
+    await chrome.storage.local.set({ testKey: 'testValue' });
+    const result = await chrome.storage.local.get('testKey');
+    expect(result.testKey).toBe('testValue');
+  });
+
+  it('removes keys from local storage', async () => {
+    await chrome.storage.local.set({ removeMe: 'value' });
+    await chrome.storage.local.remove('removeMe');
+    const result = await chrome.storage.local.get('removeMe');
+    expect(result.removeMe).toBeUndefined();
+  });
+});
+```
+
+**Build Output Smoke Test**:
+```typescript
+// src/__tests__/smoke/build-output.smoke.test.ts
+import { describe, it, expect } from 'vitest';
+import { existsSync } from 'fs';
+import { resolve } from 'path';
+
+const DIST = resolve(__dirname, '../../../dist');
+
+describe('Build Output Smoke Tests', () => {
+  it('dist/ directory exists', () => {
+    expect(existsSync(DIST)).toBe(true);
+  });
+
+  it('manifest.json exists in dist', () => {
+    expect(existsSync(resolve(DIST, 'manifest.json'))).toBe(true);
+  });
+
+  it('popup.html exists in dist', () => {
+    expect(existsSync(resolve(DIST, 'popup.html'))).toBe(true);
+  });
+
+  it('background.js exists in dist', () => {
+    expect(existsSync(resolve(DIST, 'background.js'))).toBe(true);
+  });
+
+  it('content.js exists in dist', () => {
+    expect(existsSync(resolve(DIST, 'content.js'))).toBe(true);
+  });
+
+  // Run AFTER build: pnpm build && pnpm vitest run src/__tests__/smoke/build-output
+});
+```
+
+```bash
+# Run extension smoke tests
+cd extension
+pnpm vitest run src/__tests__/smoke/
+
+# Run build output verification (after build)
+pnpm build && pnpm vitest run src/__tests__/smoke/build-output.smoke.test.ts
+```
+
+**Commit:** `test(extension): smoke tests — manifest, UI components, message passing, storage, build output`
+
+---
+
 ## PHASE 10: ANALYTICS + FEATURE FLAGS + GROWTH
 
 **⚡ DELEGATE TO SUBAGENT** — spawn Task for analytics + flags.
@@ -638,13 +1317,27 @@ pytest tests/ -v --cov=app --cov-report=term-missing --cov-fail-under=80
 Generate E2E tests using `/e2e-test` patterns:
 - **Web (Playwright)**: Auth flow, payment flow, CRUD operations, real-time features
 - **Mobile (Detox)**: Login, navigation, push notifications, offline mode
+- **Chrome Extension (Vitest + Playwright)**: Popup, sidepanel, messaging, storage, build output
 - **Critical user journeys**: Register → Login → Use Features → Pay → Upgrade Plan
 
+**IMPORTANT**: Phase 9l (frontend smoke tests) and Phase 9.6f (extension smoke tests) must PASS before this phase.
+If smoke tests were skipped or failed, run them first:
 ```bash
-# Web E2E
+# Web frontend smoke tests (from Phase 9l)
+cd frontend && pnpm vitest run tests/smoke/ && npx playwright test tests/e2e/smoke.spec.ts --project=chromium
+
+# Extension smoke tests (from Phase 9.6f)
+cd extension && pnpm vitest run src/__tests__/smoke/
+```
+
+Full E2E tests build ON TOP of passing smoke tests — do not duplicate smoke coverage:
+```bash
+# Web E2E (beyond smoke — full user journeys)
 npx playwright test --project=chromium
 # Mobile E2E
 npx detox test --configuration ios.sim.release
+# Extension E2E (Playwright with --load-extension)
+npx playwright test --project=extension
 ```
 
 ### 11c. Performance Tests (Baseline)
@@ -845,7 +1538,9 @@ After completing each phase, update both `AUTO_BUILD_STATE.json` and `SPRINT_PLA
 | Phase 6.8 (File/Search/Push) | S3 upload, Meilisearch, FCM tasks |
 | Phase 7 (APIs) | API endpoint tasks |
 | Phase 9 (Frontend) | Frontend page and component tasks |
+| Phase 9l (Smoke Tests) | Frontend smoke tests (page render, auth, API, dark mode) |
 | Phase 9.5 (Mobile) | Mobile app tasks |
+| Phase 9.6 (Extension) | Chrome Extension build + smoke tests (MV3, popup, sidepanel, messaging) |
 | Phase 10 (Analytics) | Analytics, feature flags, admin tasks |
 | Phase 11 (Testing) | All testing tasks |
 | Phase 12 (Security) | Security hardening, compliance tasks |
