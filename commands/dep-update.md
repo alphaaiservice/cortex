@@ -1093,3 +1093,41 @@ If an update introduces a circular dependency:
 8. **ALWAYS show the diff** of what changed in dependency files before finalizing.
 9. **NEVER run `npm audit fix --force`** — this is destructive and unpredictable.
 10. **ALWAYS respect the --dry-run flag** — zero file modifications when dry-running.
+
+---
+
+## Scheduled Execution (Recommended)
+
+`/dep-update` is a strong candidate for recurring scheduled execution — outdated dependencies accumulate silently, and a weekly checkpoint catches them before they pile up.
+
+### Recommended cadence
+
+| Cadence | When | Flags | Rationale |
+|---------|------|-------|-----------|
+| **Weekly** (DEFAULT) | Monday 09:00 local | `--patch-only` | Catches patch/security releases without surprise major bumps; reviewed first thing Monday so failures don't stew over a weekend |
+| Bi-weekly | Mon every 2 weeks | (no flags) | If weekly is too noisy for a small team |
+| Daily | 02:00 local | `--security-only --dry-run` | High-urgency projects; reports CVE-bearing updates without applying them |
+
+### How to schedule
+
+**Option A: Claude Code `/schedule` (recommended)**
+
+Type `/schedule` in any Claude Code session — it'll walk you through creating a scheduled remote agent (routine) that runs `/dep-update` on a cron schedule. Example schedule strings:
+- `"every Monday at 09:00"` for the weekly default
+- `"every weekday at 02:00 UTC"` for a daily security-only sweep
+
+**Option B: OS-level cron (when Claude Code isn't running)**
+
+Use your system crontab to invoke Claude Code's CLI non-interactively. The exact flag for one-shot execution depends on your CC version — see `claude --help` for the print/non-interactive mode. Whatever you use, redirect output to a log so you can audit what changed:
+
+```
+# example crontab entry — adapt the claude invocation to your CC version
+0 9 * * 1 cd /path/to/repo && <claude one-shot invocation> "/dep-update --patch-only" \
+  >> .cortex/scheduled-dep-update.log 2>&1
+```
+
+### Mandatory when scheduled
+
+- **ALWAYS** use `--dry-run` first when introducing a new schedule, so the first few runs only report and don't mutate. Promote to live updates only after you've seen 2-3 clean dry-runs.
+- **ALWAYS** ensure the scheduled run can open a PR (not push to main) so a human reviews dependency churn.
+- **ALWAYS** route failures to the team's alerts channel — silent scheduled failures defeat the purpose.

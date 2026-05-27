@@ -193,3 +193,48 @@ If monitoring is not configured:
 If error tracking is missing:
   → "Add Sentry for error tracking (included in /auto-build Phase 12)"
 ```
+
+---
+
+## Scheduled Execution (Recommended)
+
+`/health-check` is a natural fit for daily scheduling — it's fast, non-mutating, and the value comes from catching drift early (e.g., a config that worked yesterday but no longer matches the current standards).
+
+### Recommended cadence
+
+| Cadence | When | Rationale |
+|---------|------|-----------|
+| **Daily** (DEFAULT) | 06:00 local | Runs before the workday starts; results are waiting when the team logs in |
+| **Per-commit** | Pre-push hook | Catches health regressions before they hit `main` |
+| **Pre-deploy** | CI/CD pipeline step | Blocks deploys that would degrade health score below threshold |
+
+### How to schedule
+
+**Option A: Claude Code `/schedule` (recommended)**
+
+Type `/schedule` in any Claude Code session. Example: `"every day at 06:00 UTC"` for the daily check.
+
+**Option B: OS-level cron (when Claude Code isn't running)**
+
+```
+# example — adapt the claude invocation to your CC version
+0 6 * * * cd /path/to/repo && <claude one-shot> "/health-check" \
+  >> .cortex/scheduled-health-check.log 2>&1
+```
+
+**Option C: Git pre-push hook (catches regressions before push)**
+
+Add to `.git/hooks/pre-push` (or via `husky` / `lefthook`):
+
+```bash
+#!/bin/bash
+# Block push if health score drops below 70/100
+<claude one-shot> "/health-check --json" | jq -e '.score >= 70' \
+  || { echo "BLOCKED: health check score below 70"; exit 1; }
+```
+
+### Mandatory when scheduled
+
+- **ALWAYS** trend the score over time (write each run's score to `.cortex/health-history.json`) — a single point-in-time number is noise; the slope is signal.
+- **ALWAYS** alert the team when the score drops by >5 points in a single run, even if still above threshold.
+- **NEVER** auto-fix on schedule. Health checks report; humans decide which fixes to take.

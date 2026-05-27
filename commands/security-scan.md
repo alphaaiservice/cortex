@@ -1123,3 +1123,49 @@ If the scan found no CRITICAL or HIGH issues:
 Security posture is acceptable for deployment.
 Review MEDIUM/LOW findings for continuous improvement.
 ```
+
+---
+
+## Scheduled Execution (Strongly Recommended)
+
+`/security-scan` is one of the highest-value commands to schedule — vulnerabilities don't wait for the next release cycle, and a nightly sweep catches new CVEs in your dependencies the same day they're published.
+
+### Recommended cadence
+
+| Cadence | When | Flags | Rationale |
+|---------|------|-------|-----------|
+| **Nightly fast pass** | 02:00 local daily | `--quick --deps-only` | Catches new CVEs in pinned deps overnight; fast (<2 min) so it doesn't disrupt anything |
+| **Weekly deep scan** (DEFAULT) | Sunday 03:00 local | (no flags — full SAST + DAST + OWASP) | Catches code-introduced vulnerabilities, missing security headers, auth gaps; runs when nobody is shipping |
+| Pre-release | Tied to release tag | `--strict --fail-on=HIGH` | Run via CI on every release branch; blocks merge if HIGH+ issues found |
+| Quarterly compliance | First of each quarter | `--full --include-runtime` | Comprehensive audit for SOC2 / ISO27001 / DPDPA evidence |
+
+### How to schedule
+
+**Option A: Claude Code `/schedule` (recommended)**
+
+Type `/schedule` in any Claude Code session. Example schedule strings:
+- `"every day at 02:00 UTC"` for the nightly fast pass
+- `"every Sunday at 03:00 UTC"` for the weekly deep scan
+
+**Option B: OS-level cron (when Claude Code isn't running)**
+
+Use your system crontab and invoke Claude Code non-interactively (see `claude --help` for the one-shot/print flag in your CC version). Always redirect output to a log:
+
+```
+# example — adapt the claude invocation to your CC version
+0 2 * * * cd /path/to/repo && <claude one-shot> "/security-scan --quick --deps-only" \
+  >> .cortex/scheduled-security-scan.log 2>&1
+0 3 * * 0 cd /path/to/repo && <claude one-shot> "/security-scan" \
+  >> .cortex/scheduled-security-deep.log 2>&1
+```
+
+**Option C: CI/CD (for pre-release scans)**
+
+Wire a `--strict --fail-on=HIGH` invocation into your `.github/workflows/*.yml` or `.gitlab-ci.yml` so the pipeline fails on HIGH+ findings. See `/gen-ci --add-security-scan` for boilerplate.
+
+### Mandatory when scheduled
+
+- **ALWAYS** route findings to a security alerts channel — silent scheduled scans are worse than no scans (false confidence).
+- **ALWAYS** auto-open issues for CRITICAL findings — humans must triage same-day.
+- **NEVER** auto-fix on schedule. The `--fix` flag is for interactive use only; a scheduled auto-fix can land breaking changes overnight without review.
+- **ALWAYS** keep the last 30 days of scheduled scan logs for compliance / trend analysis.

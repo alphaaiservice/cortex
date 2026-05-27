@@ -917,3 +917,50 @@ spec:
 ║    5. Review DR_RUNBOOK.md with your team                ║
 ╚══════════════════════════════════════════════════════════╝
 ```
+
+---
+
+## Scheduled Execution (Recommended)
+
+`/backup-dr` itself is a one-time setup command — you run it once per project to scaffold the backup scripts, DR runbook, and cron entries. After that, **the GENERATED backup scripts** should run on a schedule (this is what Step 9 "Generate Cron Schedule" sets up).
+
+However, **re-running `/backup-dr` periodically** has real value: it catches drift between what your DR runbook claims and what the project actually has (new data stores, deleted services, changed paths).
+
+### Two distinct schedules to set up
+
+**1. The generated backup scripts** (set up by Step 9 of this command)
+
+These run inside your infrastructure (cron in the K3s nodes, GitHub Actions, or wherever your data lives). The command auto-generates the cron entries — you don't need to do this manually. Typical cadence:
+
+| Job | Cadence | Retention |
+|-----|---------|-----------|
+| MySQL `mysqldump` | Daily 02:00 | 30 daily + 12 monthly + 1 yearly |
+| MongoDB `mongodump` | Daily 02:30 | 30 daily + 12 monthly + 1 yearly |
+| Redis RDB snapshot | Every 6 hours | 14 days |
+| S3/storage cross-region replication | Continuous | n/a |
+| Verify (restore test) | Weekly Sunday 03:00 | Pass/fail logged to `.cortex/backup-verify.log` |
+
+**2. Re-running `/backup-dr` itself** (drift detection)
+
+| Cadence | When | Rationale |
+|---------|------|-----------|
+| **Quarterly** (DEFAULT) | First Monday of each quarter | Catches new data stores added since last setup; updates DR_RUNBOOK.md with current state |
+| Post-major-feature | After any feature that adds a data store or storage volume | Ensures backups cover the new surface |
+| Pre-audit | Before any SOC2 / ISO27001 / DPDPA audit | DR runbook must reflect current reality |
+
+### How to schedule the drift-detection rerun
+
+**Option A: Claude Code `/schedule` (recommended)**
+
+Type `/schedule` in any Claude Code session. Example: `"first Monday of every 3 months at 10:00 UTC"`.
+
+**Option B: Calendar reminder**
+
+Honestly, for quarterly cadence, a calendar reminder for the on-call engineer to run `/backup-dr` is often more reliable than automation — the rerun is interactive (asks about new data stores) and shouldn't run unattended.
+
+### Mandatory when scheduled
+
+- **ALWAYS** run `bash backup/scripts/verify-backup.sh` weekly. A backup you've never restored is a hope, not a backup.
+- **ALWAYS** alert SEV-1 on backup verify failure — a broken backup pipeline is invisible until you need it.
+- **ALWAYS** rotate offsite copies on the schedule defined in DR_RUNBOOK.md (lifecycle policies in the backup S3 bucket).
+- **NEVER** auto-delete old backups via cron without lifecycle policies + alerts on lifecycle drift.

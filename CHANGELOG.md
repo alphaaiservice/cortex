@@ -5,6 +5,30 @@ All notable changes to the Cortex plugin are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.4] — 2026-05-27
+
+### Added
+
+- **Scheduled execution guidance for recurring-value commands.**
+  `/dep-update`, `/security-scan`, `/health-check`, and `/backup-dr`
+  each have a new "Scheduled Execution" section that recommends:
+
+  1. Per-command cadence tables (e.g., security-scan: nightly fast pass
+     + weekly deep scan; dep-update: weekly Monday with `--patch-only`;
+     health-check: daily 06:00; backup-dr: quarterly drift detection
+     plus the generated backup scripts run daily/weekly).
+  2. Three scheduling options: Claude Code `/schedule` skill
+     (recommended), OS-level cron with one-shot Claude CLI invocation,
+     and CI/CD hooks for pre-release scans / pre-push health checks.
+  3. Mandatory hygiene rules for scheduled runs — always alert on
+     failure, never auto-fix on schedule, always log to
+     `.cortex/scheduled-<command>.log` for audit.
+
+  This makes cortex's "ongoing maintenance" surface actionable instead
+  of theoretical. Users can now move from "I'll run /security-scan
+  before each release" to "I get a Slack alert if last night's CVE
+  scan found anything HIGH+" with a single `/schedule` invocation.
+
 ## [1.1.3] — 2026-05-27
 
 ### Added
