@@ -5,6 +5,37 @@ All notable changes to the Cortex plugin are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] — 2026-05-27
+
+### Fixed
+
+- **`task-completed-quality-gate.sh` secrets check now actually fires.**
+  The hook surfaced in v1.1.2 carried a latent bug from the original
+  inline-bash version: the secrets check used `grep -q | grep -q` to
+  detect "lines matching secret keywords NOT in safe context", but `-q`
+  suppresses stdout, so the second grep received no input and the
+  check silently never fired. The hook was rejecting TODO/FIXME and
+  skipped tests correctly, but hardcoded secrets passed through.
+
+  Replaced with a proper two-pass filter:
+  1. Find candidate lines matching `password`, `secret`, or `api[._-]?key`
+  2. Filter out lines in obviously safe contexts: `.env`, `.example`,
+     `example.`, `config.`, `template`, `placeholder`, `TODO`, `FIXME`,
+     `<your-`, `YOUR_`, `${...}` interpolation, `process.env`,
+     `os.environ`, `os.getenv`, `System.getenv`
+  3. If any candidate lines remain, flag as a quality gate failure.
+
+  Verified with 6 test scenarios:
+  - Clean output → exit 0
+  - TODO marker → exit 2 (existing check, still works)
+  - Hardcoded `const password = "hunter2"` → exit 2 (the fix)
+  - `const password = process.env.DB_PASSWORD` → exit 0 (safe ctx)
+  - Reference to `.env.example` → exit 0 (safe ctx)
+  - Hardcoded `api_key = "sk-..."` → exit 2 (fix catches snake_case too)
+
+  Removed the "KNOWN ISSUE" annotation from the script header — the
+  issue is now resolved.
+
 ## [1.3.0] — 2026-05-27
 
 ### Added — Cortex can now scaffold MCP servers and Claude plugins
