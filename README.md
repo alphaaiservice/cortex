@@ -5,12 +5,14 @@
 Built by [Alpha AI Service Pvt Ltd](https://www.alphaaiservice.com)
 
 ```
-Plugin         : Cortex v1.0.0
-Commands       : 37 slash commands
-Agents         : 11 specialized subagents
-Skills         : 9 auto-invoked skills
-Hooks          : 6 event-driven automations
-Total Lines    : 45,355 lines of AI instructions
+Plugin         : Cortex v1.3.1
+Commands       : 48 slash commands
+Agents         : 13 specialized subagents
+Skills         : 19 auto-invoked skills (including 5 meta-process skills)
+Hooks          : 7 event-driven automations
+Reference Docs : 16 progressive-disclosure references
+Validator      : scripts/validate-plugin.sh (CI on every push)
+License        : MIT
 ```
 
 ---
@@ -26,7 +28,7 @@ Total Lines    : 45,355 lines of AI instructions
   - [Step 4: Enable Agent Teams (Optional)](#step-4-enable-agent-teams-optional)
   - [Step 5: Verify Installation](#step-5-verify-installation)
 - [Quick Start](#quick-start)
-- [All 37 Commands](#all-37-commands)
+- [All 48 Commands](#all-48-commands)
 - [Subagents](#subagents)
 - [Auto-Invoked Skills](#auto-invoked-skills)
 - [Hooks](#hooks)
@@ -141,7 +143,7 @@ Edit `~/.claude/settings.json` and add the `plugins.directories` entry:
 }
 ```
 
-After saving, **every new Claude Code session** automatically loads all 37 commands, 11 agents, 9 skills, and 6 hooks.
+After saving, **every new Claude Code session** automatically loads all 48 commands, 13 agents, 19 skills, and 7 hooks.
 
 > **Important:** Use the **absolute path** (not `~` or relative paths).
 
@@ -264,16 +266,25 @@ Start a new Claude Code session and verify everything loaded correctly:
 # Start Claude Code (fresh session required after settings changes)
 claude
 
-# You should see the Alpha AI banner on startup:
+# You should see the Cortex banner on startup:
 #
-# ╔══════════════════════════════════════════════════════════════╗
-# ║     █████╗ ██╗     ██████╗ ██╗  ██╗ █████╗                  ║
-# ║    ██╔══██╗██║     ██╔══██╗██║  ██║██╔══██╗                 ║
-# ║    ███████║██║     ██████╔╝███████║███████║                 ║
-# ║           ALPHA AI  --  Builder Plugin v1.0.0                ║
-# ╚══════════════════════════════════════════════════════════════╝
+# +----------------------------------------------------------+
+# |                                                          |
+# |     ____           _                                     |
+# |    / ___|___  _ __| |_ _____  __                         |
+# |   | |   / _ \| '__| __/ _ \ \/ /                         |
+# |   | |__| (_) | |  | ||  __/>  <                          |
+# |    \____\___/|_|   \__\___/_/\_\                         |
+# |                                                          |
+# |  Cortex v1.3.1 -- SDLC Automation Engine                 |
+# |  Forge Production-Ready Software                         |
+# |  Alpha AI Service Pvt Ltd                                |
+# |                                                          |
+# |  48 commands | 13 agents | 19 skills | 7 hooks           |
+# +----------------------------------------------------------+
 #
-# Plugin Loaded: 37 commands | 11 agents | 9 skills
+# (Banner version + counts read dynamically from plugin.json
+#  at invocation time, so they never go stale.)
 ```
 
 **Verification checklist:**
@@ -281,7 +292,7 @@ claude
 ```bash
 # 1. Check all commands are available
 /help
-# Should list all 37 slash commands
+# Should list all 48 slash commands
 
 # 2. Run a quick health check
 /health-check
@@ -292,7 +303,12 @@ claude
 
 # 4. Verify hooks are active
 /hooks
-# Should show 6 hooks (PreToolUse, SessionStart, PostToolUse, Stop, TeammateIdle, TaskCompleted)
+# Should show 7 hooks (PreToolUse, SessionStart, PostToolUse for Write+Edit,
+# Stop, PreCompact, TeammateIdle, TaskCompleted)
+
+# 5. Run the plugin validator (catches drift between manifest and reality)
+bash scripts/validate-plugin.sh
+# Should report: Passed: 23, Warnings: 0, Failed: 0
 ```
 
 ### Team-Wide Setup
@@ -400,7 +416,7 @@ To share the plugin across your entire team:
 
 ---
 
-## All 37 Commands
+## All 48 Commands
 
 ### Planning and Research (4)
 
@@ -411,11 +427,13 @@ To share the plugin across your entire team:
 | `/market-research <topic>` | Deep competitive analysis, market trends, pricing intelligence |
 | `/sprint-plan <prd-file>` | Break PRD into sprint-sized tasks with estimates and dependencies |
 
-### Project Setup (4)
+### Project Setup (6)
 
 | Command | Description |
 |---------|-------------|
-| `/init-project <name> [--existing]` | Scaffold new or upgrade existing FastAPI project |
+| `/init-project <name> [--lang=python\|nestjs\|springboot] [--existing]` | Scaffold new or upgrade existing FastAPI/NestJS/Spring Boot project |
+| `/init-mcp-server <name> [--lang=python\|typescript] [--with-tools]` | **NEW in v1.3.0** — Scaffold standalone MCP server (Python `mcp` SDK or TypeScript `@modelcontextprotocol/sdk`) |
+| `/init-claude-plugin <name> [--with-commands\|agents\|skills\|hooks\|mcp]` | **NEW in v1.3.0** — Scaffold a Claude Code plugin using Cortex's own structure as the template (dogfoods every plugin best practice) |
 | `/analyze-project [path]` | Scan existing codebase, detect tech stack, map architecture |
 | `/gap-analysis [path]` | Compare app against Alpha AI's 36 engineering standards |
 | `/seed-data [--count=100]` | Generate realistic seed data factories and database seeders |
@@ -455,7 +473,7 @@ To share the plugin across your entire team:
 | `/deploy <environment>` | Deploy with pre-flight checks and safety validations |
 | `/gen-ci [github-actions\|gitlab-ci]` | Generate CI/CD pipelines with caching, matrix testing, security |
 
-### Infrastructure and DevOps (5)
+### Infrastructure and DevOps (9)
 
 | Command | Description |
 |---------|-------------|
@@ -464,6 +482,10 @@ To share the plugin across your entire team:
 | `/docker-clean` | Clean unused Docker containers, images, volumes, networks |
 | `/monitoring` | Set up Prometheus + Grafana monitoring stack |
 | `/runbook [--type=incident\|all]` | Generate operational runbooks and incident playbooks |
+| `/backup-dr` | Automated backups, restore verification, DR runbooks (MySQL/MongoDB/Redis/S3) |
+| `/env-sync` | Environment parity checks, config drift detection, secret rotation |
+| `/feature-flags` | Feature flag system: MySQL + Redis cache + admin UI |
+| `/audit-setup` | Security audit logging, compliance trails, suspicious-activity alerts |
 
 ### Documentation and People (3)
 
@@ -472,6 +494,18 @@ To share the plugin across your entire team:
 | `/gen-docs [--type=all]` | Generate README, Architecture, API Reference, Deployment Guide |
 | `/api-docs` | Auto-generate OpenAPI specs and endpoint documentation |
 | `/onboard-dev <name> (<role>)` | Generate personalized onboarding plan and starter tasks |
+
+### Analysis and Intelligence (5)
+
+Added in v1.1.0 — codebase analysis and AI capability discovery.
+
+| Command | Description |
+|---------|-------------|
+| `/suggest-ai-features [path]` | Scan codebase, recommend where AI/ML adds value, generate AI_ENHANCEMENT_PLAN.md |
+| `/ai-upgrade <feature>` | Implementation counterpart to `/suggest-ai-features` — add AI to a specific feature |
+| `/trace-impact "<change>"` | Trace full-stack blast radius of a code change (DB → service → API → frontend) |
+| `/estimate-cost ["scenario"]` | Project infra + API costs at 100 / 1K / 10K / 100K users; compare service alternatives |
+| `/feature-map [feature]` | Build visual feature dependency map of the codebase as a Mermaid diagram |
 
 ### Maintenance (1)
 
@@ -483,7 +517,7 @@ To share the plugin across your entire team:
 
 ## Subagents
 
-11 specialized AI agents that can be spawned in parallel for faster execution:
+13 specialized AI agents that can be spawned in parallel for faster execution:
 
 | Agent | Expertise |
 |-------|-----------|
@@ -498,12 +532,17 @@ To share the plugin across your entire team:
 | **DevOps Engineer** | CI/CD pipelines, Docker, Kubernetes, Terraform, deployment |
 | **Performance Profiler** | API profiling, bottleneck analysis, load testing |
 | **Documentation Writer** | README, architecture docs, API reference, deployment guides |
+| **Feature Analyzer** (Priya Sharma 🇮🇳) — *new v1.1.0* | Dissects existing codebases, maps features to code, detects patterns and anti-patterns |
+| **AI Integration Specialist** (Marcus Chen 🇺🇸) — *new v1.1.0* | Designs LLM integration, vector search, semantic analysis with cost-awareness |
 
 ---
 
 ## Auto-Invoked Skills
 
-9 skills that automatically activate when Claude detects matching task context:
+19 skills that automatically activate when Claude detects matching task context.
+Split into three categories:
+
+**Domain enforcement** (9 — fire when writing code matching their domain):
 
 | Skill | Triggers When |
 |-------|---------------|
@@ -517,20 +556,42 @@ To share the plugin across your entire team:
 | **devops** | Creating Docker files, CI/CD pipelines, K8s manifests |
 | **performance** | Writing database queries, caching logic, async code |
 
+**Analysis & advisory** (5 — added v1.1.0):
+
+| Skill | Triggers When |
+|-------|---------------|
+| **cost-estimator** | User asks about costs, pricing, budgets, infrastructure estimates |
+| **dependency-mapper** | Architecture planning, refactor planning, "what depends on what" |
+| **feature-impact-analysis** | Schema changes, migrations, feature removal, API deprecation |
+| **metric-recommender** | Adding new features, setting up monitoring, KPI discussions |
+| **smart-retrofit** | "Add AI to X", "make X smarter", "integrate AI", "enhance X" |
+
+**Meta-process** (5 — added v1.2.0, makes Cortex self-contained — no Superpowers dependency):
+
+| Skill | Triggers When |
+|-------|---------------|
+| **cortex-brainstorming** | Before creating any new feature/product — runs the 5-question FEATURE_PROFILE builder |
+| **cortex-planning** | Before any multi-step implementation (3+ files OR 30+ min OR multi-layer OR hard-to-reverse) |
+| **cortex-tdd** | Before writing any implementation code — enforces red→green→refactor per language |
+| **cortex-debugging** | On any bug/failure/regression — enforces systematic reproduce→isolate→fix-at-right-layer loop |
+| **cortex-verification** | Before any "done/fixed/complete" claim — runs the language-specific verify suite |
+
 ---
 
 ## Hooks
 
-6 event-driven automations that run automatically:
+7 event-driven automations that run automatically. Every hook is a real
+script under `scripts/` (no inline bash — extracted in v1.1.2 for testability):
 
-| Hook | Event | What It Does |
-|------|-------|--------------|
-| **Safe Bash** | Before bash command | Warns about dangerous commands (rm -rf, DROP TABLE, etc.) |
-| **Session Context** | Session start | Loads project context, git status, and shows plugin banner |
-| **Python Formatter** | After file write | Auto-formats Python files with ruff/black |
-| **Build Guard** | Before session end | Blocks exit during auto-build until product is complete |
-| **Teammate Reassign** | Teammate idle | Checks task list and reassigns pending tasks to idle agents |
-| **Task Gate** | Task completed | Quality gate hook for Agent Teams task completion |
+| Hook | Event | Script | What It Does |
+|------|-------|--------|--------------|
+| **Safe Bash** | `PreToolUse` (Bash) | `safe-bash-check.sh` | Blocks dangerous commands (`rm -rf /`, `mkfs.`, fork bombs, etc.) |
+| **Session Context** | `SessionStart` | `session-context.sh` | Loads project context, git status, plugin banner |
+| **Auto-Format** | `PostToolUse` (Write + Edit) | `auto-format.sh` | Auto-formats per language (ruff/black for Python, prettier for JS/TS, google-java-format for Java) |
+| **Build Guard** | `Stop` | `auto-build-stop-hook.sh` | Blocks exit during `/auto-build` until product is complete |
+| **PreCompact Checkpoint** *(v1.1.x)* | `PreCompact` | `precompact-checkpoint.sh` | Snapshots `AUTO_BUILD_STATE.json` + auto-commits dirty changes before compaction |
+| **Teammate Reassign** *(experimental)* | `TeammateIdle` | `teammate-idle-reassign.sh` | Agent Teams: reassigns pending tasks to idle teammates |
+| **Task Gate** *(experimental, v1.3.1 secrets fix)* | `TaskCompleted` | `task-completed-quality-gate.sh` | Agent Teams: rejects task output with unresolved TODOs, skipped tests, or hardcoded secrets |
 
 ---
 

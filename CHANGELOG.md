@@ -5,6 +5,55 @@ All notable changes to the Cortex plugin are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] — 2026-05-27
+
+### Changed — README and CLAUDE.md brought up to v1.3 reality
+
+The README hadn't been touched since the AlphaForge → Cortex rename on
+2026-03-01. Stale across the v1.1.x feature work, v1.2.0 meta-skills,
+and v1.3.0 scaffolders. A user noticed.
+
+- **README.md** — sweeping content refresh:
+  - Top stats block: `v1.0.0` → `v1.3.1`, counts `37/11/9/6` →
+    `48/13/19/7`, added reference docs / validator / license rows.
+  - "Step 5: Verify Installation" banner: replaced AlphaForge ASCII
+    art with the current Cortex banner (matching `~/.zshrc`).
+    Verification checklist updated to expect 48 commands, 7 hooks,
+    and now includes the `bash scripts/validate-plugin.sh` step.
+  - "All 37 Commands" → "All 48 Commands".
+  - **Project Setup** (4) → (6): added `/init-mcp-server` and
+    `/init-claude-plugin` (v1.3.0).
+  - **Infrastructure and DevOps** (5) → (9): added `/backup-dr`,
+    `/env-sync`, `/feature-flags`, `/audit-setup` (pre-cortex v1.0).
+  - **NEW: Analysis and Intelligence (5)** section — `/suggest-ai-
+    features`, `/ai-upgrade`, `/trace-impact`, `/estimate-cost`,
+    `/feature-map` (v1.1.0).
+  - **Subagents** (11) → (13): added Feature Analyzer (Priya Sharma)
+    and AI Integration Specialist (Marcus Chen) (v1.1.0).
+  - **Auto-Invoked Skills** (9) → (19): restructured into three
+    tiers — 9 domain enforcement + 5 analysis/advisory (v1.1.0) + 5
+    meta-process (v1.2.0, makes Cortex self-contained with no
+    Superpowers dependency).
+  - **Hooks** (6) → (7): added PreCompact Checkpoint hook; updated
+    Build Guard's event from "before session end" to `Stop`; updated
+    Python Formatter to multi-language Auto-Format (ruff/black/
+    prettier/google-java-format); added Script column showing the
+    real script names (post v1.1.2 extraction).
+  - Table of Contents link updated.
+
+- **CLAUDE.md** — internal notes 9/10/11/17 updated to match:
+  - 41 → 48 slash commands (note #9)
+  - 11 → 13 subagents (note #10)
+  - 9 → 19 auto-invoked skills + the three-tier organization (note #11)
+  - Full SDLC coverage phase tally corrected to 48 (note #17)
+
+- **plugin.json + marketplace.json** description: command count
+  corrected `47` → `48`. The earlier v1.3.0 count was off by one.
+
+- **plugin.json + marketplace.json** bumped 1.3.1 → 1.3.2.
+
+No functional change — pure documentation sync.
+
 ## [1.3.1] — 2026-05-27
 
 ### Fixed

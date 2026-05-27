@@ -475,15 +475,15 @@ claude --plugin-dir ~/claude-plugins/cortex
 6. **Exit code 2 in hooks** — blocks the action (critical for auto-build loop)
 7. **Single source of truth for tech stack** — `commands/references/AUTO_BUILD_STACK.md` is canonical. The 4 consumers (auto-build.md, alpha-architecture SKILL, init-project.md, gen-prd.md) reference it; do NOT duplicate stack content into them.
 8. **Test with `--plugin-dir` flag** — fastest way to iterate during development
-9. **41 slash commands** covering the COMPLETE SDLC (planning → building → testing → shipping → operations → maintenance)
-10. **11 subagents** for parallel and specialized work (7 core + brand-designer + devops-engineer + performance-profiler + documentation-writer)
-11. **9 auto-invoked skills** for enforcing standards (6 core + security + devops + performance)
+9. **48 slash commands** covering the COMPLETE SDLC (planning → building → testing → shipping → operations → maintenance) plus scaffolders for standalone MCP servers and Claude Code plugins
+10. **13 subagents** for parallel and specialized work (11 core + feature-analyzer + ai-integration-specialist added v1.1.0)
+11. **19 auto-invoked skills** organized in three tiers: 9 domain enforcement (security, devops, performance, etc.) + 5 analysis/advisory (cost-estimator, dependency-mapper, etc., added v1.1.0) + 5 meta-process (cortex-brainstorming, planning, tdd, debugging, verification, added v1.2.0 — makes Cortex self-contained, no Superpowers dep)
 12. **36 modern app features** consistently across all core files (23 app + 3 open standards + 10 advanced GenAI)
 13. **Open standards adopted**: Agent Skills (Anthropic), MCP (Linux Foundation), A2A (Google/Linux Foundation)
 14. **Skills follow progressive disclosure** — alpha-architecture uses references/ for code patterns per spec
 15. **Existing app support**: /analyze-project → /gap-analysis → /retrofit or /migrate-stack workflow
 16. **`/init-project --existing`** — upgrades existing projects without overwriting code
-17. **Full SDLC coverage** organized by phase: Planning (4) → Setup (4) → Building (7) → Quality (8) → Shipping (5) → DevOps (9) → Docs (3) → Maintenance (1)
+17. **Full SDLC coverage** organized by phase: Planning (4) → Setup (6, with init-mcp-server + init-claude-plugin) → Building (7) → Quality (8) → Shipping (5) → DevOps (9) → Docs (3) → Analysis & Intelligence (5) → Maintenance (1) = 48 total
 18. **Security auto-enforced** — security skill triggers on any auth/input/secrets code
 19. **Performance auto-enforced** — performance skill triggers on DB queries, caching, async code
 20. **DevOps auto-enforced** — devops skill triggers on Docker, CI/CD, K8s, infra code
