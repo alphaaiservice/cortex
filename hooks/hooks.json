@@ -30,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'INPUT=$(cat); FILE=$(echo \"$INPUT\" | jq -r \".tool_input.file_path // empty\" 2>/dev/null); if [ -z \"$FILE\" ]; then exit 0; fi; if echo \"$FILE\" | grep -qE \"\\.py$\"; then if command -v ruff &>/dev/null; then ruff format \"$FILE\" 2>/dev/null && ruff check --fix \"$FILE\" 2>/dev/null && echo \"Auto-formatted (Python): $FILE\"; elif command -v black &>/dev/null; then black --quiet \"$FILE\" 2>/dev/null && echo \"Auto-formatted (Python): $FILE\"; fi; elif echo \"$FILE\" | grep -qE \"\\.(ts|tsx|js|jsx)$\"; then if command -v prettier &>/dev/null; then prettier --write \"$FILE\" 2>/dev/null && echo \"Auto-formatted (JS/TS): $FILE\"; elif [ -f node_modules/.bin/prettier ]; then node_modules/.bin/prettier --write \"$FILE\" 2>/dev/null && echo \"Auto-formatted (JS/TS): $FILE\"; fi; elif echo \"$FILE\" | grep -qE \"\\.java$\"; then if command -v google-java-format &>/dev/null; then google-java-format --replace \"$FILE\" 2>/dev/null && echo \"Auto-formatted (Java): $FILE\"; fi; fi'",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/auto-format.sh",
             "timeout": 15
           }
         ]
@@ -40,7 +40,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'INPUT=$(cat); FILE=$(echo \"$INPUT\" | jq -r \".tool_input.file_path // empty\" 2>/dev/null); if [ -z \"$FILE\" ]; then exit 0; fi; if echo \"$FILE\" | grep -qE \"\\.py$\"; then if command -v ruff &>/dev/null; then ruff format \"$FILE\" 2>/dev/null && ruff check --fix \"$FILE\" 2>/dev/null && echo \"Auto-formatted (Python): $FILE\"; elif command -v black &>/dev/null; then black --quiet \"$FILE\" 2>/dev/null && echo \"Auto-formatted (Python): $FILE\"; fi; elif echo \"$FILE\" | grep -qE \"\\.(ts|tsx|js|jsx)$\"; then if command -v prettier &>/dev/null; then prettier --write \"$FILE\" 2>/dev/null && echo \"Auto-formatted (JS/TS): $FILE\"; elif [ -f node_modules/.bin/prettier ]; then node_modules/.bin/prettier --write \"$FILE\" 2>/dev/null && echo \"Auto-formatted (JS/TS): $FILE\"; fi; elif echo \"$FILE\" | grep -qE \"\\.java$\"; then if command -v google-java-format &>/dev/null; then google-java-format --replace \"$FILE\" 2>/dev/null && echo \"Auto-formatted (Java): $FILE\"; fi; fi'",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/auto-format.sh",
             "timeout": 15
           }
         ]
@@ -64,7 +64,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'STATE_FILE=\"AUTO_BUILD_STATE.json\"; if [ -f \"$STATE_FILE\" ]; then BACKUP_DIR=\".cortex/state-backups\"; mkdir -p \"$BACKUP_DIR\"; cp \"$STATE_FILE\" \"$BACKUP_DIR/$(date +%Y%m%d_%H%M%S).json\" 2>/dev/null; PHASE=$(jq -r \".current_phase // \\\"unknown\\\"\" \"$STATE_FILE\" 2>/dev/null || echo \"unknown\"); PCT=$(jq -r \".completion_percentage // 0\" \"$STATE_FILE\" 2>/dev/null || echo \"0\"); echo \"State backed up before compaction (phase: $PHASE, progress: ${PCT}%)\"; if git rev-parse --is-inside-work-tree &>/dev/null; then DIRTY=$(git status --short 2>/dev/null | wc -l | tr -d \" \"); if [ \"$DIRTY\" -gt 0 ]; then git add -A 2>/dev/null && git commit -m \"checkpoint(phase-${PHASE}): auto-save before context compaction [${PCT}%]\" 2>/dev/null && echo \"Auto-committed checkpoint before compaction.\"; fi; fi; fi; exit 0'",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/precompact-checkpoint.sh",
             "timeout": 15
           }
         ]
@@ -76,7 +76,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'INPUT=$(cat); TEAM=$(echo \"$INPUT\" | jq -r \".team_name // empty\" 2>/dev/null); if [ -n \"$TEAM\" ] && [ -d \"$HOME/.claude/tasks/${TEAM}\" ]; then PENDING=$(cat \"$HOME/.claude/tasks/${TEAM}\"/*.json 2>/dev/null | jq -s \"[.[] | select(.status == \\\"pending\\\")] | length\" 2>/dev/null || echo 0); if [ \"$PENDING\" -gt 0 ]; then echo \"$PENDING pending tasks remain. Claim next available task.\" >&2; exit 2; fi; fi; exit 0'",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/teammate-idle-reassign.sh",
             "timeout": 10
           }
         ]
@@ -88,7 +88,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'INPUT=$(cat); TASK_OUTPUT=$(echo \"$INPUT\" | jq -r \".task_output // empty\" 2>/dev/null); TASK_NAME=$(echo \"$INPUT\" | jq -r \".task_name // empty\" 2>/dev/null); ISSUES=\"\"; if [ -n \"$TASK_OUTPUT\" ]; then if echo \"$TASK_OUTPUT\" | grep -qiE \"TODO|FIXME|HACK|XXX\"; then ISSUES=\"${ISSUES}Task output contains unresolved TODO/FIXME markers. \"; fi; if echo \"$TASK_OUTPUT\" | grep -qiE \"skip(ped)?.*test|test.*skip\"; then ISSUES=\"${ISSUES}Tests appear to be skipped. \"; fi; if echo \"$TASK_OUTPUT\" | grep -qiE \"password|secret|api.key\" | grep -qivE \"env|config|example\"; then ISSUES=\"${ISSUES}Possible hardcoded secrets detected. \"; fi; fi; if [ -n \"$ISSUES\" ]; then echo \"Quality gate: ${ISSUES}Task: ${TASK_NAME}. Please address these issues before marking complete.\" >&2; exit 2; fi; exit 0'",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/task-completed-quality-gate.sh",
             "timeout": 10
           }
         ]

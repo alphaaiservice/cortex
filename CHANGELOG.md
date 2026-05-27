@@ -5,6 +5,45 @@ All notable changes to the Cortex plugin are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] — 2026-05-27
+
+### Changed
+
+- **Extracted inline bash from `hooks/hooks.json` into proper scripts.**
+  The 300+ char one-liners in PostToolUse (Write + Edit), PreCompact,
+  TeammateIdle, and TaskCompleted were unreadable and untestable.
+  Each is now a real `scripts/*.sh` file with a shebang, header
+  comment, and consistent style matching the existing
+  `safe-bash-check.sh` / `session-context.sh` / `auto-build-stop-hook.sh`.
+  Behavior is identical — this is a pure refactor.
+
+  New scripts:
+  - `scripts/auto-format.sh` — PostToolUse hook for Write and Edit.
+    Picks ruff/black for Python, prettier for JS/TS, google-java-format
+    for Java. Both Write and Edit now invoke the same script (was
+    duplicated inline before).
+  - `scripts/precompact-checkpoint.sh` — PreCompact hook. Backs up
+    `AUTO_BUILD_STATE.json` and auto-commits dirty changes before
+    context compaction so `/auto-build` can resume cleanly.
+  - `scripts/teammate-idle-reassign.sh` — TeammateIdle hook (Agent Teams).
+    Reads pending tasks from `~/.claude/tasks/<team>` and exits 2 when
+    work remains.
+  - `scripts/task-completed-quality-gate.sh` — TaskCompleted hook
+    (Agent Teams). Rejects task output containing unresolved TODO/FIXME
+    markers, skipped tests, or (intended) hardcoded secrets.
+
+  `hooks/hooks.json` shrank from 5.9 KB to 2.3 KB (~60% smaller).
+
+### Known Issues
+
+- `task-completed-quality-gate.sh` preserves a latent bug from the
+  original inline hook: the hardcoded-secrets check pipes two `grep -q`
+  invocations together, and `-q` suppresses stdout, so the second grep
+  receives no input and the check never fires. Preserved verbatim in
+  this refactor so behavior is unchanged. Annotated with a `KNOWN ISSUE`
+  comment in the script; fix in a follow-up if you want secrets
+  rejection to actually trigger.
+
 ## [1.1.1] — 2026-05-27
 
 ### Changed
