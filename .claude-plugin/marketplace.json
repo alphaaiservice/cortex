@@ -18,9 +18,13 @@
         "name": "Alpha AI Service Pvt Ltd",
         "email": "info@alphaaiservice.com"
       },
-      "license": "Proprietary",
+      "license": "MIT",
+      "privacyPolicy": "https://www.alphaaiservice.com/privacy-policy",
+      "contact": {
+        "email": "info@alphaaiservice.com"
+      },
       "repository": "https://github.com/alphaaiservice/cortex",
-      "homepage": "https://alphaaiservice.com/cortex",
+      "homepage": "https://www.alphaaiservice.com/cortex",
       "keywords": [
         "sdlc",
         "devops",
