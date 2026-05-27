@@ -5,6 +5,63 @@ All notable changes to the Cortex plugin are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] — 2026-05-27
+
+### Added — 5 meta-process skills (Cortex is now self-contained)
+
+Cortex used to rely on the external Superpowers plugin for meta-process
+(brainstorming, planning, TDD, debugging, verification). It now ships
+its own Cortex-flavored versions, integrated with FEATURE_PROFILE,
+language detection, the persona system, and the alpha-architecture
+layer rules.
+
+- **`cortex-brainstorming`** — fires before any new feature/product
+  work. Walks 5 questions (audience, core action, FEATURE_PROFILE,
+  out-of-scope, persona ownership) and writes BRAINSTORM.md as the
+  input contract for /gen-prd, /init-project, /auto-build, /retrofit,
+  /ai-upgrade.
+- **`cortex-planning`** — fires before any multi-step implementation
+  (3+ files, 30+ min, multi-layer, or hard-to-reverse). Produces
+  PLAN.md with affected Cortex layers, build order, verification
+  gates, risks/rollback, and persona ownership. Compatible with
+  AUTO_BUILD_STATE.json for ingestion by /auto-build.
+- **`cortex-tdd`** — fires before writing any implementation code.
+  Enforces red→green→refactor using the project's language-specific
+  framework (pytest+pytest-asyncio | Jest+supertest | JUnit 5+Mockito).
+  Includes per-layer test patterns and Cortex persona delegation
+  templates. Documents the ONE exception (genuine spike, marked and
+  deleted before merge).
+- **`cortex-debugging`** — fires on any bug/failure/regression BEFORE
+  proposing a fix. Enforces the systematic loop: reproduce → isolate
+  to layer → minimal failing case → hypothesis test → fix at right
+  layer → regression test → root-cause commit message. Maps bug
+  surfaces to owning personas (Yuki for auth, Daan for payments,
+  Carlos for DB, Hiroshi for LLM, Zara for RAG, etc.).
+- **`cortex-verification`** — fires before any "done/fixed/complete"
+  claim. Runs the language-specific verify suite (ruff+mypy+pytest
+  with --cov-fail-under=80 | pnpm lint+tsc+test+coverage | gradle
+  checkstyle+spotbugs+test+jacoco), captures exit codes, requires
+  boot smoke test, requires manual UI smoke for frontend changes,
+  and mandates printing evidence in the completion message.
+
+Why these were added: a user observed Claude pulling in Superpowers
+skills (brainstorming, writing-plans, TDD, systematic-debugging,
+verification-before-completion) when running Cortex commands, because
+Superpowers' aggressive trigger descriptions win the trigger-match
+race over Cortex's domain-specific skills. The 5 new skills cover
+the same meta-process layer but with Cortex-flavored bodies that
+know about FEATURE_PROFILE, layer segregation, language detection,
+and the persona roster. Users can now uninstall Superpowers if they
+want a fully self-contained Cortex.
+
+### Changed
+
+- plugin.json description: skill count corrected 14 → 19, added
+  self-contained note.
+- marketplace.json description: same.
+- plugin.json + marketplace.json bumped 1.1.7 → 1.2.0 (MINOR — new
+  public skills added).
+
 ## [1.1.7] — 2026-05-27
 
 ### Added
