@@ -549,6 +549,13 @@ Read SPRINT_PLAN.md → mark completed tasks → update AUTO_BUILD_STATE.json sp
 Report: "Sprint {N}: {completed}/{total} tasks done ({points} story points)"
 ```
 
+**Jira sync (if configured):** if a task in `AUTO_BUILD_STATE.json` carries a Jira key
+(from `/sprint-plan --create-jira`) and a Jira project is configured
+(`.cortex/jira.json`), the `jira-integration` skill transitions the issue as its phase
+moves (→ In Progress on start, → In Review/Done on verify) and posts a brief comment
+(phase + commit SHA). Lightweight: one transition + at most one comment per state
+change. If Jira isn't connected, skip silently — never block the build.
+
 ---
 
 ## COMPLETION

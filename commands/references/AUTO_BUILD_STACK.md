@@ -892,6 +892,11 @@ Before building, detect which backend language to use:
 ### Frontend — Web App (if applicable)
 - **Framework**: React 19+ with Next.js 15+ (App Router, TypeScript strict)
 - **Styling**: Tailwind CSS 4+ (utility-first, JIT)
+- **⭐ PRODUCTION BAR (HARD — see `skills/alpha-architecture/references/CODE_PATTERNS_FRONTEND_PRODUCTION.md`)**: Every frontend ships production-ready, ALWAYS:
+  - **Fonts**: a real typeface pairing (DISPLAY + BODY) via `next/font` (self-hosted, zero layout shift) — NEVER system-ui default.
+  - **Color**: a full OKLCH semantic design-token system in `globals.css` with light **and** dark themes; components use semantic tokens ONLY (`bg-primary`, `text-foreground`) — NEVER raw Tailwind palette (`bg-blue-500`) or hard-coded hex (hex lives only in BRAND_GUIDE/SVG/email). Run `/gen-brand` first if no `BRAND_GUIDE.md` exists.
+  - **Errors**: every user-facing error is a friendly, branded, brand-voice message via ONE `getErrorMessage` mapper — NEVER an HTTP status code, exception name, stack trace, or raw API payload shown to the user.
+  - Plus: real-data wiring (no mocks/dead buttons), `frontend-design` skill for visual pages, next/image + WCAG 2.1 AA, error.tsx/loading.tsx per route group.
 - **UI Component Library** (Agent MUST choose best for the product — research during Phase -1):
   ```
   ┌──────────────────────────────────────────────────────────────────────────┐

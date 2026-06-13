@@ -13,6 +13,11 @@ Build feature: **$ARGUMENTS**
 Before starting, check if this feature maps to a sprint task:
 
 ```
+0. If $ARGUMENTS looks like a Jira issue key (matches ^[A-Z][A-Z0-9]+-\d+$, e.g. "PROJ-123"):
+   → The `jira-integration` skill handles it: read the issue via the Atlassian MCP
+     server, use its summary + description + acceptance criteria as the feature spec,
+     and transition the issue to "In Progress". Then continue the flow below.
+   → If Jira isn't connected, fall back to treating $ARGUMENTS as a plain description.
 1. Check if SPRINT_PLAN.md exists
 2. If $ARGUMENTS references a task ID (e.g., "task 2.3", "sprint task 2.3", or just "2.3"):
    a. Read SPRINT_PLAN.md
@@ -88,6 +93,14 @@ git checkout -b feature/[slugified-name]
    - Spawn Agent subagent (mode = "bypassPermissions") with: file list from plan, project patterns, Alpha AI rules
    - Subagent writes code following existing project patterns
    - Subagent follows Alpha AI layer segregation: api/ → services/ → repositories/
+   - **If the feature touches the frontend:** copy the production bar from
+     `skills/alpha-architecture/references/CODE_PATTERNS_FRONTEND_PRODUCTION.md`
+     inline into the subagent prompt (subagents can't read references) — real
+     next/font pairing + OKLCH semantic tokens (no system fonts / raw hex /
+     bg-blue-500), real-data wiring with all 4 states, friendly branded errors
+     via the project's `getErrorMessage` mapper (NEVER show HTTP codes,
+     exceptions, stack traces, or raw API payloads). Reuse the existing
+     BRAND_GUIDE/token system — never invent new colors.
    - Subagent verifies lint + compile before reporting back
    - If multiple independent files: spawn parallel subagents
 

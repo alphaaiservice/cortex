@@ -144,15 +144,34 @@ GZip compression middleware for API responses.
 
 **⚡ DELEGATE TO SUBAGENT(S)** — spawn 1-3 Tasks (infrastructure, pages, and polish can be parallel).
 
-**CRITICAL**: Load these 3 files before writing ANY frontend code:
+**CRITICAL**: Load these 4 files before writing ANY frontend code:
+- `skills/alpha-architecture/references/CODE_PATTERNS_FRONTEND_PRODUCTION.md` — ⭐ THE PRODUCTION BAR: fonts & color, real data, polish, perf/a11y, friendly errors (READ FIRST)
 - `skills/alpha-architecture/references/CODE_PATTERNS_FRONTEND_CORE.md` — architecture, routes, providers, middleware, page state
 - `skills/alpha-architecture/references/CODE_PATTERNS_FRONTEND_PAGES.md` — dashboard layout, 6 page templates
 - `skills/alpha-architecture/references/CODE_PATTERNS_FRONTEND_UX.md` — reusable components, skeletons, animations, dark mode
 Follow Page State Pattern, Dashboard Layout, and component patterns EXACTLY.
 
-**FIRST**: Read `BRAND_GUIDE.md` and configure Tailwind with brand design tokens (colors, fonts, spacing, shadows, border-radius).
+**FIRST**: Ensure `BRAND_GUIDE.md` exists — if it does NOT, run `/gen-brand` before writing any frontend so a real palette + font pairing exists. Read it and configure the design-token system (colors, fonts, spacing, shadows, border-radius).
 Generate favicon, OG images, and PWA manifest with brand identity.
 Apply brand colors, typography, and styling consistently across ALL pages and components.
+
+> **⚠️ SUBAGENTS CANNOT READ REFERENCE FILES.** When spawning a frontend
+> subagent, COPY this production bar inline into its prompt:
+> - **§0 Fonts & Color (non-negotiable):** Real typeface pairing via `next/font`
+>   (display + body font from BRAND_GUIDE) — NEVER system-ui default. Full OKLCH
+>   semantic token system in globals.css with light + dark. Components use
+>   semantic tokens ONLY (`bg-primary`, `text-foreground`, `border-border`) —
+>   NEVER raw Tailwind colors (`bg-blue-500`) or hard-coded hex.
+> - **§1 Real data:** every view on a real API query with loading/empty/error/data;
+>   no lorem/placeholder/mock arrays; no dead buttons; env-driven config.
+> - **§2 Polish:** invoke the `frontend-design` skill for visual pages; follow
+>   BRAND_GUIDE component standards; no generic AI aesthetic.
+> - **§3 Perf/a11y:** next/image, next/font, code splitting, WCAG 2.1 AA, no CLS.
+> - **§4 Friendly errors (HARD):** ALL user-facing errors are friendly, branded,
+>   brand-voice messages via ONE `getErrorMessage` mapper (lib/errors.ts). NEVER
+>   show an HTTP status code (404/500), exception name, stack trace, or raw API
+>   payload to the user. error.tsx/loading.tsx in every route group; never the
+>   default Next.js error screen.
 
 ### Phase 9a: Project Setup
 
@@ -198,13 +217,22 @@ pnpm add date-fns clsx tailwind-merge
 pnpm add cmdk
 ```
 
-Configure `tailwind.config.ts` with BRAND_GUIDE tokens:
-- Extend colors with brand primary, secondary, accent
-- Extend fontFamily with brand fonts
-- Extend borderRadius, spacing, shadows from brand guide
-- Add CSS variables for light/dark theme tokens in globals.css
+Configure the design-token system from BRAND_GUIDE (§0 of CODE_PATTERNS_FRONTEND_PRODUCTION.md):
+- **`app/fonts.ts`** — define the typeface pairing via `next/font/google`: a DISPLAY
+  font (headings/brand) + a BODY/UI font, each with `display: "swap"` and a CSS
+  `variable`. NEVER rely on system-ui default. Multi-script products add Noto Sans.
+- **`app/layout.tsx`** — apply the font `variable` classes to `<html>`; `<body>` uses
+  `font-sans antialiased bg-background text-foreground`.
+- **`globals.css`** — full OKLCH semantic token system: `:root` (light) + `.dark`
+  blocks defining background/foreground/card/primary/secondary/muted/accent/
+  destructive/success/warning/info/border/input/ring (+ brand palette + gradients).
+  Both themes REQUIRED.
+- **`tailwind.config.ts`** — map tokens (colors → `var(--*)`, fontFamily → the
+  `--font-*` variables), `darkMode: "class"`, brand borderRadius/spacing/shadows.
+- **Rule:** components consume semantic tokens ONLY — NEVER raw Tailwind palette
+  (`bg-blue-500`) or hard-coded hex. Hex lives only in BRAND_GUIDE/SVG/email.
 
-**Commit:** `feat(frontend): Next.js project setup with all dependencies`
+**Commit:** `feat(frontend): Next.js setup with next/font pairing + OKLCH token system (light + dark)`
 
 ### Phase 9b: Core Infrastructure
 
@@ -214,8 +242,17 @@ Create the foundational infrastructure — follow CODE_PATTERNS_FRONTEND_CORE.md
    - `baseURL` from env (NEXT_PUBLIC_API_URL)
    - `withCredentials: true` on EVERY request (HTTP-Only cookie auth)
    - Response interceptor: 401 → attempt token refresh → retry original request
-   - Response interceptor: extract user-friendly error messages
+   - Response interceptor: transient (network / 5xx) → bounded retry with backoff
    - CSRF token from non-httponly cookie → X-CSRF-Token header
+
+1b. **`lib/errors.ts`** — the ONE central `getErrorMessage(error)` mapper (HARD §4):
+   - Maps any error → a friendly, brand-voice message (e.g. "Your session has
+     expired. Please sign in again." for 401; "Something went wrong on our end.
+     Please try again shortly." for 5xx).
+   - **NEVER** returns an HTTP status code, exception message, stack trace, or raw
+     API payload. Technical detail goes to `console.error` + Sentry ONLY.
+   - Every page, query `onError`, mutation `onError`, and error boundary surfaces
+     errors through THIS mapper — no hand-rolled error copy anywhere else.
 
 2. **`lib/query-client.ts`** — TanStack Query client with default options (staleTime, retry, refetchOnWindowFocus)
 
@@ -447,18 +484,28 @@ Run comprehensive quality check on EVERY page:
 ╠═══════════════════════════════════════════════════════════════╣
 ║  For EVERY page, verify:                                      ║
 ║                                                               ║
+║  □ Fonts: real next/font pairing (NO system-ui default)       ║
+║  □ Color: OKLCH token system, light + dark, in globals.css    ║
+║  □ Tokens only: NO raw hex / bg-blue-500 in any component     ║
+║  □ Real data: real API query, no mocks/lorem, no dead buttons ║
 ║  □ Responsive: renders correctly 320px → 2560px               ║
 ║  □ Dark mode: all elements themed (no white flash)            ║
 ║  □ Loading state: content-shaped skeleton (never spinner)     ║
-║  □ Error state: retry button + user-friendly message          ║
+║  □ Error state: retry button + friendly brand-voice message   ║
+║  □ Errors: ONE getErrorMessage mapper; NO HTTP code/exception/║
+║    stack trace/raw payload EVER shown to the user             ║
 ║  □ Empty state: illustration + CTA (never blank page)         ║
 ║  □ SEO: generateMetadata() + OG tags                          ║
 ║  □ Forms: React Hook Form + Zod + inline validation + toast   ║
 ║  □ Keyboard: Tab order, focus rings, Enter to submit          ║
 ║  □ Accessibility: ARIA labels, alt text, color contrast       ║
-║  □ Performance: no layout shift, images optimized             ║
-║  □ error.tsx exists in every route group                       ║
+║  □ Performance: no layout shift, next/image, next/font        ║
+║  □ error.tsx exists in every route group (branded, never default)║
 ║  □ loading.tsx exists in every route group                     ║
+║                                                               ║
+║  Grep gate (must return NOTHING in app/ + components/):       ║
+║    grep -rEn '#[0-9a-fA-F]{3,6}|bg-(blue|gray|red|green)-[0-9]'║
+║    grep -rEn 'status code|stack|Exception|err\\.message' (in UI)║
 ║                                                               ║
 ║  Run: pnpm build — zero errors, zero type errors              ║
 ║  Run: pnpm lint — zero warnings                               ║

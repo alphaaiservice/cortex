@@ -160,6 +160,20 @@ After successful ship:
 3. If not found: skip silently
 ```
 
+## Step 5b: Update Jira (if connected)
+
+If a Jira project is configured (`.cortex/jira.json`) or the Atlassian MCP server is
+connected, the `jira-integration` skill closes the loop:
+
+```
+1. Resolve the issue key from: the branch name (feature/PROJ-123-...), the commit
+   message, or AUTO_BUILD_STATE.json.
+2. addCommentToJiraIssue → post the PR URL + one-line summary.
+3. transitionJiraIssue → "In Review" (or "Done" if the user opted in), using a real
+   transition ID from getTransitionsForJiraIssue.
+4. If Jira isn't connected or no key is found: skip silently (never block the ship).
+```
+
 ---
 
 ## Step 6: Summary

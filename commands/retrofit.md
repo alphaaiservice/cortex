@@ -182,7 +182,7 @@ Generate a retrofit plan:
 3. **Repositories** — Add data access layer
 4. **Services** — Add business logic
 5. **API routes** — Add new endpoints
-6. **Frontend** — Add new pages/components (if applicable)
+6. **Frontend** — Add new pages/components (if applicable). MUST meet the production bar in `skills/alpha-architecture/references/CODE_PATTERNS_FRONTEND_PRODUCTION.md`: real next/font pairing + OKLCH tokens (no system fonts / raw hex / bg-blue-500), real-data wiring, friendly branded errors (NO HTTP codes, exceptions, or stack traces shown to users). Match the existing app's BRAND_GUIDE/token system — never introduce ad-hoc colors.
 7. **Tests** — Add test coverage
 8. **Config** — Update env vars, docker-compose, docs
 

@@ -2,7 +2,8 @@
 # Part 3 of 3: Reusable Components, Responsive, Skeletons, SEO, Animations, Dark Mode, Cmd+K
 # Language: TypeScript/TSX | Framework: Next.js 15+ | UI: shadcn/ui + Tailwind
 # ═══════════════════════════════════════════════════════════════════
-# See also: CODE_PATTERNS_FRONTEND_CORE.md (core architecture)
+# See also: CODE_PATTERNS_FRONTEND_PRODUCTION.md (⭐ the production-ready bar — fonts & color, real data, friendly errors — READ FIRST)
+#           CODE_PATTERNS_FRONTEND_CORE.md (core architecture)
 #           CODE_PATTERNS_FRONTEND_PAGES.md (layouts + page templates)
 
 

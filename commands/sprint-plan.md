@@ -944,6 +944,27 @@ Milestones: Sprint 1 through Sprint [N] with due dates
 
 ---
 
+## Step 6.5: Push to Jira (Conditional)
+
+**Execute if `--create-jira` is in $ARGUMENTS, OR a Jira project is configured
+(`.cortex/jira.json`), OR the user asks to push the plan to Jira.**
+
+This is handled by the **`jira-integration` skill** (no separate command) — it uses
+the Atlassian MCP server to:
+- Create an **Epic** per sprint and a **Story/Task** per task (real issue types +
+  required fields from `getJiraProjectIssueTypesMetadata`), with estimates as story
+  points and acceptance criteria in the description.
+- Stay **idempotent** — JQL-check for an existing issue by summary before creating,
+  so re-running `/sprint-plan` updates rather than duplicates.
+- Mirror the created issue keys back into `SPRINT_PLAN.md` (`- [ ] PROJ-123 — …`)
+  and `AUTO_BUILD_STATE.json` so `/feature`, `/auto-build`, and `/ship` can transition
+  them later.
+
+If Jira isn't connected, skip silently and tell the user to run `/mcp` to authenticate
+the `atlassian` server. Never block plan generation.
+
+---
+
 ## Step 7: Output Summary
 
 After generating SPRINT_PLAN.md (and optionally creating GitHub issues), display this summary:

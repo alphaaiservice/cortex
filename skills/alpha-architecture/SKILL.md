@@ -219,15 +219,44 @@ Each row below maps to a section in `AUTO_BUILD_STACK.md`. If the project doesn'
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
+## Production-Ready Frontend — THE BAR (ENFORCED EVERYWHERE Cortex writes frontend)
+
+> **📖 CANONICAL REFERENCE**: The full production-ready frontend contract —
+> fonts & color tokens, real-data wiring, visual polish, performance + a11y,
+> and robust/user-friendly error handling — lives in
+> `references/CODE_PATTERNS_FRONTEND_PRODUCTION.md`. Load it BEFORE writing
+> any frontend code via /auto-build, /init-project, /retrofit, or /feature.
+> A page that violates its §0–§4 rules is NOT production-ready and is NOT done.
+
+Five non-negotiable pillars (summary — details in the reference):
+- **§0 Fonts & Color** — Real typeface pairing via `next/font` (NEVER system-ui
+  default). Full OKLCH semantic token system in globals.css with light + dark.
+  Components use semantic tokens ONLY (`bg-primary`, `text-foreground`) —
+  NEVER raw Tailwind colors (`bg-blue-500`) or hard-coded hex. A committed
+  `BRAND_GUIDE.md` is the contract — run `/gen-brand` first if none exists.
+- **§1 Real data, no mocks** — Every view on a real API query with all 4 states.
+  No lorem/placeholder/hardcoded arrays, no dead buttons, env-driven config.
+- **§2 Polished visual design** — Invoke the `frontend-design` skill for any
+  non-trivial/visual UI. No generic AI aesthetic; follow BRAND_GUIDE standards.
+- **§3 Performance + a11y** — next/image, next/font, code splitting, WCAG 2.1 AA,
+  no layout shift.
+- **§4 Robustness + friendly errors** — error.tsx/loading.tsx per route group,
+  Zod validation, mutation loading states. **All user-facing errors are
+  friendly, branded, brand-voice messages via one `getErrorMessage` mapper —
+  NEVER an HTTP status code, exception, stack trace, or raw API payload.**
+
 ## Frontend Page Quality Rules — ENFORCED ON ALL PAGES
 
 ```
 ╔═══════════════════════════════════════════════════════════════╗
 ║  Frontend Page Quality (ENFORCED on ALL pages)                ║
 ╠═══════════════════════════════════════════════════════════════╣
+║  ✅ Real font pairing via next/font (NEVER system-ui default) ║
+║  ✅ OKLCH semantic token system, light + dark, in globals.css ║
+║  ✅ Semantic tokens only (bg-primary) — NO raw hex/bg-blue-500║
 ║  ✅ Every page handles 4 states: Loading, Error, Empty, Data ║
 ║  ✅ Loading = skeleton matching page layout (never spinner)  ║
-║  ✅ Error = retry button + user-friendly message             ║
+║  ✅ Error = retry button + friendly brand-voice message      ║
 ║  ✅ Empty = illustration + CTA (never blank)                 ║
 ║  ✅ Responsive: mobile-first, works 320px to 2560px          ║
 ║  ✅ Dark mode: all elements themed (no white flash)          ║
@@ -237,9 +266,15 @@ Each row below maps to a section in `AUTO_BUILD_STACK.md`. If the project doesn'
 ║  ✅ Accessibility: keyboard nav, focus rings, ARIA labels    ║
 ║  ✅ Dashboard layout: sidebar + header + breadcrumbs          ║
 ║  ✅ error.tsx + loading.tsx in EVERY route group              ║
+║  ✅ Errors via ONE getErrorMessage mapper (friendly + branded)║
 ║                                                               ║
+║  ❌ NEVER ship on system-ui default fonts or raw Tailwind hue ║
+║  ❌ NEVER hard-code hex / use bg-blue-500 in a component      ║
 ║  ❌ NEVER show a blank page while loading (use skeleton)     ║
 ║  ❌ NEVER show raw API errors to users                       ║
+║  ❌ NEVER show HTTP status codes (404/500) to the user       ║
+║  ❌ NEVER show an exception name, stack trace, or API payload ║
+║  ❌ NEVER ship Next.js's default error screen (brand it)     ║
 ║  ❌ NEVER skip empty state (always have illustration + CTA)  ║
 ║  ❌ NEVER use spinner-only loading (use content-shaped skel) ║
 ║  ❌ NEVER ship without mobile responsive testing             ║
@@ -280,6 +315,7 @@ Auth Verification Rule — Backend (HARD — ALL 3 languages):
 - ✅ ALWAYS access user from request context set by middleware
 ```
 
+> Load `references/CODE_PATTERNS_FRONTEND_PRODUCTION.md` FIRST — the production-ready bar (fonts & color, real data, polish, perf/a11y, friendly errors).
 > Load `references/CODE_PATTERNS_FRONTEND_CORE.md` for architecture (routes, providers, middleware, page state).
 > Load `references/CODE_PATTERNS_FRONTEND_PAGES.md` for dashboard layout + 6 page templates.
 > Load `references/CODE_PATTERNS_FRONTEND_UX.md` for reusable components, skeletons, animations, dark mode.
@@ -669,6 +705,7 @@ Code patterns are split by backend language. Load the one matching the detected 
 - **Python/FastAPI**: [references/CODE_PATTERNS_PYTHON.md](references/CODE_PATTERNS_PYTHON.md)
 - **Node.js/NestJS**: [references/CODE_PATTERNS_NESTJS.md](references/CODE_PATTERNS_NESTJS.md)
 - **Java/Spring Boot**: [references/CODE_PATTERNS_SPRINGBOOT.md](references/CODE_PATTERNS_SPRINGBOOT.md)
+- **Frontend Production Bar (Next.js)**: [references/CODE_PATTERNS_FRONTEND_PRODUCTION.md](references/CODE_PATTERNS_FRONTEND_PRODUCTION.md) — ⭐ fonts & color, real data, polish, perf/a11y, friendly errors
 - **Frontend Core (Next.js)**: [references/CODE_PATTERNS_FRONTEND_CORE.md](references/CODE_PATTERNS_FRONTEND_CORE.md)
 - **Frontend Pages (Next.js)**: [references/CODE_PATTERNS_FRONTEND_PAGES.md](references/CODE_PATTERNS_FRONTEND_PAGES.md)
 - **Frontend UX (Next.js)**: [references/CODE_PATTERNS_FRONTEND_UX.md](references/CODE_PATTERNS_FRONTEND_UX.md)

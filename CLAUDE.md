@@ -111,6 +111,7 @@ cortex/
 │   │       ├── CODE_PATTERNS_PYTHON.md     # Python/FastAPI code patterns
 │   │       ├── CODE_PATTERNS_NESTJS.md     # NestJS/TypeScript code patterns
 │   │       ├── CODE_PATTERNS_SPRINGBOOT.md # Java/Spring Boot code patterns
+│   │       ├── CODE_PATTERNS_FRONTEND_PRODUCTION.md # ⭐ Frontend production bar: Fonts & Color (next/font + OKLCH tokens), Real data, Visual polish, Perf/A11y, Friendly errors (no HTTP codes/exceptions)
 │   │       ├── CODE_PATTERNS_FRONTEND_CORE.md  # Frontend Part 1: Dir structure, App Router, Routes, Providers, Middleware, Page State
 │   │       ├── CODE_PATTERNS_FRONTEND_PAGES.md # Frontend Part 2: Dashboard Layout, 6 Page Templates (List/Detail/Form/Settings/Dashboard/Auth)
 │   │       ├── CODE_PATTERNS_FRONTEND_UX.md    # Frontend Part 3: Components, Responsive, Skeletons, SEO, Animations, Dark Mode, Cmd+K
@@ -133,8 +134,12 @@ cortex/
 │   │   └── SKILL.md
 │   ├── devops/                  # 🐳 Auto-enforces Docker, CI/CD, K8s, monitoring standards
 │   │   └── SKILL.md
-│   └── performance/             # ⚡ Auto-enforces DB optimization, caching, async patterns
+│   ├── performance/             # ⚡ Auto-enforces DB optimization, caching, async patterns
+│   │   └── SKILL.md
+│   └── jira-integration/        # 🟦 Auto-invoked on Jira work — bidirectional sync via Atlassian MCP (NO command)
 │       └── SKILL.md
+│
+├── .mcp.json                     # MCP SERVERS Cortex CONSUMES — atlassian (Jira/Confluence) via official remote MCP
 │
 ├── hooks/                        # HOOKS — event-driven automation
 │   └── hooks.json               # Defines when hooks fire and what they do
@@ -267,6 +272,32 @@ When `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set, the plugin supports **Agen
 **Enable:** Set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in `~/.claude/settings.json` under `"env"`.
 
 **Fallback:** When Agent Teams is not enabled, all commands fall back to the standard Agent tool subagent pattern automatically.
+
+### MCP Servers Cortex Consumes (`.mcp.json`)
+
+Distinct from `/init-mcp-server` (which *scaffolds* a new MCP server) — this is Cortex
+acting as an MCP **client**. `.mcp.json` at the plugin root declares external MCP
+servers that Cortex's own commands/skills call. Plugin tools are namespaced
+`mcp__plugin_cortex_<server>__<tool>`.
+
+Currently declared:
+- **`atlassian`** (`type: "http"`, `https://mcp.atlassian.com/v1/mcp`) — the official
+  Atlassian Remote (Rovo) MCP server for **Jira + Confluence**. OAuth on first use
+  (no token stored). Powers the **`jira-integration` skill** (bidirectional sync):
+  - `/sprint-plan --create-jira` → creates Epics/Stories (idempotent via JQL check),
+    mirrors issue keys back into `SPRINT_PLAN.md` + `AUTO_BUILD_STATE.json`.
+  - `/feature PROJ-123` → reads the issue as the spec, transitions it to In Progress.
+  - `/auto-build` → transitions issues as phases complete (lightweight).
+  - `/ship` → comments the PR link, transitions to In Review/Done.
+  - There is **no `/jira` command** — the auto-invoked skill is the whole surface.
+  - Degrades gracefully: if the server isn't connected (`/mcp` to auth), Cortex does
+    the real work and skips Jira sync. Jira Cloud only; Server/DC users swap `.mcp.json`
+    for a self-hosted Atlassian MCP (e.g. `sooperset/mcp-atlassian` via stdio + PAT).
+
+**To add another consumed server:** add it under `mcpServers` in `.mcp.json`, document
+the tools in a skill (or command), and pre-allow specific tools — never wildcards — in
+the consuming command's frontmatter. Auth via OAuth (SSE/HTTP) or `${ENV}` headers;
+never hard-code credentials. Restart Claude Code after editing `.mcp.json`.
 
 ---
 
@@ -477,7 +508,7 @@ claude --plugin-dir ~/claude-plugins/cortex
 8. **Test with `--plugin-dir` flag** — fastest way to iterate during development
 9. **48 slash commands** covering the COMPLETE SDLC (planning → building → testing → shipping → operations → maintenance) plus scaffolders for standalone MCP servers and Claude Code plugins
 10. **13 subagents** for parallel and specialized work (11 core + feature-analyzer + ai-integration-specialist added v1.1.0)
-11. **19 auto-invoked skills** organized in three tiers: 9 domain enforcement (security, devops, performance, etc.) + 5 analysis/advisory (cost-estimator, dependency-mapper, etc., added v1.1.0) + 5 meta-process (cortex-brainstorming, planning, tdd, debugging, verification, added v1.2.0 — makes Cortex self-contained, no Superpowers dep)
+11. **20 auto-invoked skills** organized in tiers: 9 domain enforcement (security, devops, performance, etc.) + 5 analysis/advisory (cost-estimator, dependency-mapper, etc., added v1.1.0) + 5 meta-process (cortex-brainstorming, planning, tdd, debugging, verification, added v1.2.0 — makes Cortex self-contained, no Superpowers dep) + 1 integration (jira-integration, added v1.4.0 — bidirectional Jira sync via the Atlassian MCP server, no command)
 12. **36 modern app features** consistently across all core files (23 app + 3 open standards + 10 advanced GenAI)
 13. **Open standards adopted**: Agent Skills (Anthropic), MCP (Linux Foundation), A2A (Google/Linux Foundation)
 14. **Skills follow progressive disclosure** — alpha-architecture uses references/ for code patterns per spec

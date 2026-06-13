@@ -624,6 +624,7 @@ Create minimal working code. Only create files for features the project actually
 
 **Web frontend base code (if --with-frontend OR PRD has web frontend — default YES for most projects):**
 
+> Load `skills/alpha-architecture/references/CODE_PATTERNS_FRONTEND_PRODUCTION.md` FIRST — the production bar (fonts & color via next/font + OKLCH tokens, real data, polish, perf/a11y, friendly errors with NO HTTP codes/exceptions).
 > Load `skills/alpha-architecture/references/CODE_PATTERNS_FRONTEND_CORE.md` for architecture (routes, providers, middleware, page state).
 > Load `skills/alpha-architecture/references/CODE_PATTERNS_FRONTEND_PAGES.md` for dashboard layout + page templates.
 > Load `skills/alpha-architecture/references/CODE_PATTERNS_FRONTEND_UX.md` for reusable components, skeletons, animations.
@@ -682,7 +683,17 @@ Create the following files to give the frontend a working foundation:
   export default nextConfig;
   ```
 
-- `frontend/tailwind.config.ts` — Brand token extend (populated from BRAND_GUIDE.md):
+- `frontend/app/fonts.ts` — **Production font pairing via `next/font` (HARD — see CODE_PATTERNS_FRONTEND_PRODUCTION.md §0).** NEVER ship on system-ui default. Define a DISPLAY font (headings/brand) + a BODY/UI font from BRAND_GUIDE, each `display: "swap"` with a CSS `variable`:
+  ```typescript
+  import { Playfair_Display, Inter } from "next/font/google"; // ← pick per BRAND_GUIDE
+  export const fontDisplay = Playfair_Display({ subsets: ["latin"], display: "swap", variable: "--font-display", weight: ["400","600","700","800"] });
+  export const fontSans = Inter({ subsets: ["latin"], display: "swap", variable: "--font-sans", weight: ["300","400","500","600","700"] });
+  ```
+  Apply `${fontDisplay.variable} ${fontSans.variable}` to `<html>` in `app/layout.tsx`; `<body>` uses `font-sans antialiased bg-background text-foreground`.
+
+- `frontend/app/globals.css` — **Full OKLCH semantic token system, light + dark (HARD).** `:root` + `.dark` blocks for background/foreground/card/primary/secondary/muted/accent/destructive/success/warning/info/border/input/ring. Both themes required. (Skeleton in CODE_PATTERNS_FRONTEND_PRODUCTION.md §0.2.)
+
+- `frontend/tailwind.config.ts` — Map the token system to Tailwind (populated from BRAND_GUIDE.md). **Components use semantic tokens ONLY — never raw Tailwind palette (`bg-blue-500`) or hard-coded hex.**
   ```typescript
   import type { Config } from "tailwindcss";
   const config: Config = {
@@ -691,13 +702,15 @@ Create the following files to give the frontend a working foundation:
     theme: {
       extend: {
         colors: {
-          brand: {
-            50: "var(--brand-50)",
-            // ... 100-900 from BRAND_GUIDE
-            DEFAULT: "var(--brand-500)",
-          },
+          background: "var(--background)", foreground: "var(--foreground)",
+          card: "var(--card)", primary: "var(--primary)", secondary: "var(--secondary)",
+          muted: "var(--muted)", accent: "var(--accent)", destructive: "var(--destructive)",
+          border: "var(--border)", input: "var(--input)", ring: "var(--ring)",
         },
-        fontFamily: { sans: ["var(--font-sans)", "system-ui", "sans-serif"] },
+        fontFamily: {
+          sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+          display: ["var(--font-display)", "serif"],
+        },
       },
     },
     plugins: [require("tailwindcss-animate")],

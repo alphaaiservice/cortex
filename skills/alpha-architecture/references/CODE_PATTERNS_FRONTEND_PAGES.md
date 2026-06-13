@@ -2,7 +2,8 @@
 # Part 2 of 3: Sidebar/Header/Breadcrumbs, List/Detail/Form/Settings/Dashboard/Auth pages
 # Language: TypeScript/TSX | Framework: Next.js 15+ | UI: shadcn/ui + Tailwind
 # ═══════════════════════════════════════════════════════════════════
-# See also: CODE_PATTERNS_FRONTEND_CORE.md (core architecture)
+# See also: CODE_PATTERNS_FRONTEND_PRODUCTION.md (⭐ the production-ready bar — fonts & color, real data, friendly errors — READ FIRST)
+#           CODE_PATTERNS_FRONTEND_CORE.md (core architecture)
 #           CODE_PATTERNS_FRONTEND_UX.md (components + UX patterns)
 
 
