@@ -7,8 +7,15 @@ description: "Generate comprehensive project documentation: README, Architecture
 Generate production-quality documentation for this project based on: **$ARGUMENTS**
 
 Parse `$ARGUMENTS` to determine:
-- **Type**: `--type=readme` (default if not specified), `--type=architecture`, `--type=api`, `--type=deployment`, `--type=contributing`, `--type=manual`, or `--type=all` (generates everything)
+- **Type**: `--type=readme` (default if not specified), `--type=architecture`, `--type=api`, `--type=deployment`, `--type=local` (LOCAL_DEV.md), `--type=contributing`, `--type=manual`, or `--type=all` (generates everything)
 - **Format**: `--format=markdown` (default) or `--format=docusaurus` (generates Docusaurus-compatible docs site structure)
+
+> **`--type=local` (also part of `all`)** generates **`LOCAL_DEV.md`** per
+> `commands/references/LOCAL_DEV_STANDARD.md` §4: one-command quickstart,
+> prerequisites + pinned versions, ports table, seed credentials, common `make`
+> commands, hybrid native-hot-reload mode, the `make verify` boot check, and the
+> full Troubleshooting matrix. Whenever the README is generated it MUST carry a
+> top-level "## Run Locally" section (the 3-line quickstart, linking LOCAL_DEV.md).
 
 If no arguments are provided, default to `--type=all --format=markdown` (generate all documentation in standard Markdown).
 

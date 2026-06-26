@@ -6,9 +6,9 @@ Built by [Alpha AI Service Pvt Ltd](https://www.alphaaiservice.com)
 
 ```
 Plugin         : Cortex v1.3.1
-Commands       : 48 slash commands
+Commands       : 54 slash commands
 Agents         : 13 specialized subagents
-Skills         : 19 auto-invoked skills (including 5 meta-process skills)
+Skills         : 27 auto-invoked skills (13 domain + 5 analysis + 5 meta-process + 3 design/media + 1 integration)
 Hooks          : 7 event-driven automations
 Reference Docs : 16 progressive-disclosure references
 Validator      : scripts/validate-plugin.sh (CI on every push)
@@ -28,7 +28,7 @@ License        : MIT
   - [Step 4: Enable Agent Teams (Optional)](#step-4-enable-agent-teams-optional)
   - [Step 5: Verify Installation](#step-5-verify-installation)
 - [Quick Start](#quick-start)
-- [All 48 Commands](#all-48-commands)
+- [All 54 Commands](#all-54-commands)
 - [Subagents](#subagents)
 - [Auto-Invoked Skills](#auto-invoked-skills)
 - [Hooks](#hooks)
@@ -143,7 +143,7 @@ Edit `~/.claude/settings.json` and add the `plugins.directories` entry:
 }
 ```
 
-After saving, **every new Claude Code session** automatically loads all 48 commands, 13 agents, 19 skills, and 7 hooks.
+After saving, **every new Claude Code session** automatically loads all 54 commands, 13 agents, 27 skills, and 7 hooks.
 
 > **Important:** Use the **absolute path** (not `~` or relative paths).
 
@@ -280,7 +280,7 @@ claude
 # |  Forge Production-Ready Software                         |
 # |  Alpha AI Service Pvt Ltd                                |
 # |                                                          |
-# |  48 commands | 13 agents | 19 skills | 7 hooks           |
+# |  54 commands | 13 agents | 27 skills | 7 hooks           |
 # +----------------------------------------------------------+
 #
 # (Banner version + counts read dynamically from plugin.json
@@ -292,7 +292,7 @@ claude
 ```bash
 # 1. Check all commands are available
 /help
-# Should list all 48 slash commands
+# Should list all 54 slash commands
 
 # 2. Run a quick health check
 /health-check
@@ -416,7 +416,7 @@ To share the plugin across your entire team:
 
 ---
 
-## All 48 Commands
+## All 54 Commands
 
 ### Planning and Research (4)
 
@@ -426,6 +426,14 @@ To share the plugin across your entire team:
 | `/gen-brand <name\|prd-file>` | Generate SVG logos, color system, typography, and brand identity |
 | `/market-research <topic>` | Deep competitive analysis, market trends, pricing intelligence |
 | `/sprint-plan <prd-file>` | Break PRD into sprint-sized tasks with estimates and dependencies |
+
+### Design and Media (3) — *added v1.5.0*
+
+| Command | Description |
+|---------|-------------|
+| `/gen-mockup <idea\|prd> [--fidelity] [--mobile]` | Clickable UI screen mockups/wireframes as self-contained HTML/Next.js — brand-consistent, no API key |
+| `/gen-pitch <prd> [--mode=investor\|hackathon]` | Pitch/demo deck from PRD + research as Marp/Slidev markdown → PDF/HTML/PPTX |
+| `/gen-demo-video <prd> [--length] [--aspect]` | Product demo/marketing video as a Remotion project: script → TTS voiceover + captions → MP4 |
 
 ### Project Setup (6)
 
@@ -513,6 +521,14 @@ Added in v1.1.0 — codebase analysis and AI capability discovery.
 |---------|-------------|
 | `/dep-update [--security-only]` | Auto-update dependencies safely with test-after-each-bump |
 
+### Cortex Cloud (3)
+
+| Command | Description |
+|---------|-------------|
+| `/cortex-login` | Authenticate the plugin to Cortex Cloud via RFC 8628 device-grant login |
+| `/cortex-logout` | Log out — revoke and clear local Cortex Cloud credentials |
+| `/cortex-status` | Show Cortex Cloud connection + project status |
+
 ---
 
 ## Subagents
@@ -539,10 +555,10 @@ Added in v1.1.0 — codebase analysis and AI capability discovery.
 
 ## Auto-Invoked Skills
 
-19 skills that automatically activate when Claude detects matching task context.
-Split into three categories:
+27 skills that automatically activate when Claude detects matching task context.
+Split into five categories:
 
-**Domain enforcement** (9 — fire when writing code matching their domain):
+**Domain enforcement** (13 — fire when writing code matching their domain):
 
 | Skill | Triggers When |
 |-------|---------------|
@@ -555,6 +571,10 @@ Split into three categories:
 | **security** | Writing auth code, handling user input, managing secrets |
 | **devops** | Creating Docker files, CI/CD pipelines, K8s manifests |
 | **performance** | Writing database queries, caching logic, async code |
+| **frontend** *(v1.5.0)* | Writing any UI — Next.js/React, Tailwind/shadcn, React Native, Chrome extensions; enforces the production bar (fonts, OKLCH tokens, real data, polish, friendly errors) |
+| **genai** *(v1.5.0)* | Writing LLM/RAG/agent code — enforces LiteLLM gateway, guardrails, cost caps, structured output, observability, evals |
+| **accessibility** *(v1.5.0)* | Writing UI — enforces WCAG 2.1 AA at authoring time (semantic HTML, ARIA, contrast, keyboard nav, focus) |
+| **database** *(v1.5.0)* | Schema/migration/model code — enforces safe reversible zero-downtime migrations, datastore selection, repository boundary |
 
 **Analysis & advisory** (5 — added v1.1.0):
 
@@ -575,6 +595,20 @@ Split into three categories:
 | **cortex-tdd** | Before writing any implementation code — enforces red→green→refactor per language |
 | **cortex-debugging** | On any bug/failure/regression — enforces systematic reproduce→isolate→fix-at-right-layer loop |
 | **cortex-verification** | Before any "done/fixed/complete" claim — runs the language-specific verify suite |
+
+**Design & media** (3 — added v1.5.0, paired with /gen-mockup, /gen-pitch, /gen-demo-video):
+
+| Skill | Triggers When |
+|-------|---------------|
+| **mockup** | "Mock up / wireframe / prototype this screen" — brand-consistent screens as self-contained HTML/Next.js before building |
+| **pitch-deck** | "Make a pitch deck / slides / investor presentation" — Marp/Slidev markdown → PDF/HTML/PPTX, proven narrative arc |
+| **video-producer** | "Make a demo / marketing video" — Remotion (React) project: script → TTS voiceover + captions → branded MP4 |
+
+**Integration** (1 — added v1.4.0):
+
+| Skill | Triggers When |
+|-------|---------------|
+| **jira-integration** | Any Jira work — bidirectional sync via the Atlassian MCP server (no command; the skill is the whole surface) |
 
 ---
 
@@ -659,6 +693,11 @@ cortex/
 |   |-- market-research.md           # /market-research
 |   |-- sprint-plan.md               # /sprint-plan
 |   |
+|   |  # Design & Media (v1.5.0)
+|   |-- gen-mockup.md                 # /gen-mockup
+|   |-- gen-pitch.md                  # /gen-pitch
+|   |-- gen-demo-video.md            # /gen-demo-video
+|   |
 |   |  # Project Setup
 |   |-- init-project.md              # /init-project
 |   |-- analyze-project.md           # /analyze-project
@@ -704,7 +743,12 @@ cortex/
 |   |-- onboard-dev.md               # /onboard-dev
 |   |
 |   |  # Maintenance
-|   +-- dep-update.md                # /dep-update
+|   |-- dep-update.md                # /dep-update
+|   |
+|   |  # Cortex Cloud (auth + telemetry)
+|   |-- cortex-login.md              # /cortex-login
+|   |-- cortex-logout.md             # /cortex-logout
+|   +-- cortex-status.md             # /cortex-status
 |
 |-- agents/                          # 11 SUBAGENTS
 |   |-- architect.md                 # Architecture analysis
@@ -719,11 +763,10 @@ cortex/
 |   |-- performance-profiler.md      # Performance analysis
 |   +-- documentation-writer.md      # Documentation generation
 |
-|-- skills/                          # 9 AUTO-INVOKED SKILLS
+|-- skills/                          # 27 AUTO-INVOKED SKILLS
 |   |-- alpha-architecture/
 |   |   |-- SKILL.md                 # Tech stack enforcement
-|   |   +-- references/
-|   |       +-- CODE_PATTERNS.md     # Code patterns (progressive disclosure)
+|   |   +-- references/              # CODE_PATTERNS_* per language + frontend + genai (progressive disclosure)
 |   |-- project-setup/SKILL.md
 |   |-- onboarding/SKILL.md
 |   |-- code-review/SKILL.md
@@ -731,7 +774,19 @@ cortex/
 |   |-- deployment/SKILL.md
 |   |-- security/SKILL.md            # OWASP, auth, secrets enforcement
 |   |-- devops/SKILL.md              # Docker, CI/CD, K8s enforcement
-|   +-- performance/SKILL.md         # DB, caching, async enforcement
+|   |-- performance/SKILL.md         # DB, caching, async enforcement
+|   |-- frontend/SKILL.md            # Frontend production bar (fonts, OKLCH tokens, real data, friendly errors)
+|   |-- genai/SKILL.md               # LLM gateway, guardrails, cost caps, RAG, evals
+|   |-- accessibility/SKILL.md       # WCAG 2.1 AA at authoring time
+|   |-- database/SKILL.md            # Safe migrations, datastore selection, repo boundary
+|   |-- mockup/SKILL.md              # UI screen mockups/wireframes as code (paired with /gen-mockup)
+|   |-- pitch-deck/SKILL.md          # Pitch/demo decks via Marp/Slidev (paired with /gen-pitch)
+|   |-- video-producer/SKILL.md      # Demo/marketing video via Remotion (paired with /gen-demo-video)
+|   |-- cost-estimator/ dependency-mapper/ feature-impact-analysis/   # analysis & advisory
+|   |-- metric-recommender/ smart-retrofit/
+|   |-- cortex-brainstorming/ cortex-planning/ cortex-tdd/            # meta-process
+|   |-- cortex-debugging/ cortex-verification/
+|   +-- jira-integration/SKILL.md    # bidirectional Jira sync via Atlassian MCP
 |
 |-- hooks/
 |   +-- hooks.json                   # 6 event-driven hooks

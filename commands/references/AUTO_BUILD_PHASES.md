@@ -23,8 +23,14 @@ Spawn an Agent subagent (mode = "bypassPermissions") with these instructions:
 - Python: ALWAYS `python3 -m venv venv && source venv/bin/activate` FIRST (MANDATORY). ❌ NEVER install globally.
 - NestJS: `pnpm install` | Spring Boot: `./gradlew build`
 - Create config files: pyproject.toml (ruff + mypy + pytest), .env.example, Makefile, CLAUDE.md
+- **LOCAL-DEV BOOTSTRAP (follow `commands/references/LOCAL_DEV_STANDARD.md`)** — the app must run locally with ONE command and never fail for an avoidable reason:
+  - Root `Makefile` with the universal targets: `dev` (boots full stack + migrations + seed), `verify` (boot gate), `migrate`, `seed`, `reset`, `down`, `logs`, `dev-native`.
+  - `scripts/wait-for-healthy.sh` + `scripts/dev-verify.sh` (executable).
+  - `.env.example` with **working local defaults for every var** (local infra filled in; third-party creds blank + feature-degrades so a missing key NEVER blocks boot). Mark each `# REQUIRED` / `# OPTIONAL (feature)`.
+  - Pin toolchain: `.python-version` / `.nvmrc` / Gradle wrapper.
+  - Config loader validates env at startup → friendly "missing required env: X" (never a stack trace).
 - **Verify:** `ruff check app/ && python -c "from app.main import app"`
-- **Commit:** `feat(scaffold): initialize project with Alpha AI structure`
+- **Commit:** `feat(scaffold): initialize project with Alpha AI structure + one-command local dev`
 
 In main context after subagent returns: confirm scaffold created, move to Phase 2.
 
@@ -33,7 +39,8 @@ In main context after subagent returns: confirm scaffold created, move to Phase 
 **⚡ DELEGATE TO SUBAGENT** — spawn Task for DB setup.
 
 Subagent creates: app/db/mysql.py, app/db/mongodb.py, app/db/redis.py, app/config.py, docker-compose.yml.
-**Commit:** `feat(db): configure MySQL + MongoDB + Redis async connections`
+**Local-run reliability (LOCAL_DEV_STANDARD.md §1):** every datastore in `docker-compose.yml` gets a `healthcheck`, and the `app` service uses `depends_on: { <store>: { condition: service_healthy } }`. The app-side DB clients also retry/backoff on connect, so the app NEVER dies because a store wasn't ready yet. All ports are env-overridable (`MYSQL_PORT`, `REDIS_PORT`, …).
+**Commit:** `feat(db): configure MySQL + MongoDB + Redis async connections (healthchecked, boot-safe)`
 
 ## PHASE 3: DATA MODELS
 
@@ -1440,7 +1447,8 @@ Run the full security scanning toolchain:
 Generate comprehensive documentation using `/gen-docs` patterns:
 
 ### 13a. Core Documentation
-- **README.md**: Project overview, setup instructions, tech stack, architecture overview
+- **README.md**: Project overview, tech stack, architecture overview — and a TOP-LEVEL **"## Run Locally"** section carrying the verbatim 3-line quickstart (`git clone` → `cp .env.example .env` → `make dev`) + a link to LOCAL_DEV.md. The local-run promise must be near the top, not buried.
+- **LOCAL_DEV.md**: ⭐ The complete "always runs locally" guide — generate per `commands/references/LOCAL_DEV_STANDARD.md` §4: one-command quickstart, prerequisites + pinned versions, what `make dev` does, full ports table, seed/default credentials, common commands, hybrid (native hot-reload) mode, `make verify` boot check, and the **full Troubleshooting matrix** (§6). A new dev must reach a running app from this file alone, with zero tribal knowledge.
 - **ARCHITECTURE.md**: System architecture, component diagram, data flow, layer segregation
 - **API_DOCS.md**: Auto-generated from OpenAPI spec + custom endpoint documentation
 - **CONTRIBUTING.md**: Development setup, coding standards, PR process, review checklist
@@ -1550,11 +1558,18 @@ ls app/templates/emails/welcome.html && echo "✅ Email templates exist"
 # Docker build
 docker-compose -f docker/docker-compose.yml build
 
+# ⭐ LOCAL-RUN BOOT GATE (LOCAL_DEV_STANDARD.md §3/§7) — proves the app actually
+# runs locally on a clean checkout. This is the "never faces issues" guarantee.
+cp -n .env.example .env || true        # working defaults must boot as-is
+make verify                            # START → /health 200 {"status":"ok"} → real request → PASS/FAIL
+# Must end with "✅ BOOT VERIFIED". If it fails, the build is NOT done —
+# fix the cause and add a row to the LOCAL_DEV.md Troubleshooting matrix.
+
 # Lighthouse (frontend)
 # lighthouse http://localhost:3000 --only-categories=performance,accessibility --output=json
 ```
 
-If ALL pass → `git tag -a v1.0.0 -m "Release v1.0.0"` → Generate BUILD_REPORT.md
+If ALL pass (including `make verify`) → `git tag -a v1.0.0 -m "Release v1.0.0"` → Generate BUILD_REPORT.md
 
 ---
 

@@ -461,10 +461,13 @@ jest, @testing-library/react-native, detox
 ## Step 3: Config Files
 
 - `pyproject.toml` — ruff, mypy, pytest settings
-- `.env.example` — all env vars with descriptions (include RAZORPAY_*, GOOGLE_*, EMAIL_SMTP_*, SENTRY_DSN, AWS_S3_BUCKET, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, MEILISEARCH_HOST, MEILISEARCH_API_KEY, FIREBASE_PROJECT_ID, POSTHOG_API_KEY, TOTP_ENCRYPTION_KEY, CDN_BASE_URL, RATE_LIMIT_DEFAULT, BACKUP_S3_BUCKET, EXPO_PUBLIC_API_URL, EXPO_PUBLIC_WS_URL, EXPO_PUBLIC_SENTRY_DSN, LITELLM_MASTER_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY, QDRANT_HOST, QDRANT_API_KEY, LANGFUSE_HOST, LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY)
+- `.env.example` — **working local defaults so the app boots after a plain `cp .env.example .env` (LOCAL_DEV_STANDARD.md §5).** Local infra vars filled with real compose values; third-party creds (RAZORPAY_*, GOOGLE_*, EMAIL_SMTP_*, SENTRY_DSN, AWS_S3_*, MEILISEARCH_*, FIREBASE_*, POSTHOG_API_KEY, TOTP_ENCRYPTION_KEY, CDN_BASE_URL, RATE_LIMIT_DEFAULT, BACKUP_S3_BUCKET, EXPO_PUBLIC_*, LITELLM_MASTER_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY, QDRANT_*, LANGFUSE_*) left blank but feature-degrading (blank = feature off, app still boots). Mark each `# REQUIRED` / `# OPTIONAL (feature)`. Include `APP_PORT`/`API_PORT`/datastore ports (overridable).
 - `.editorconfig` — consistent editor settings
 - `.gitignore` — Python + Node + Docker + IDE
-- `Makefile` — dev, test, lint, format, migrate, docker commands
+- `Makefile` — **the universal one-command local-dev entrypoint (LOCAL_DEV_STANDARD.md §2):** `dev` (boots full stack + migrations + seed), `verify` (boot gate), `migrate`, `seed`, `reset`, `down`, `logs`, `dev-native`, plus `test`/`lint`/`format`.
+- `scripts/wait-for-healthy.sh` + `scripts/dev-verify.sh` — health-wait + boot-verify (LOCAL_DEV_STANDARD.md §3), executable.
+- `.python-version` / `.nvmrc` / Gradle wrapper — pin the toolchain.
+- `LOCAL_DEV.md` — the complete "always runs locally" guide (LOCAL_DEV_STANDARD.md §4): quickstart, prerequisites, ports table, seed creds, common commands, hybrid mode, `make verify`, full Troubleshooting matrix. README gets a top-level "Run Locally" section linking it.
 - `CLAUDE.md` — project context for Claude Code
 
 ## Step 4: Docker Setup
@@ -966,6 +969,14 @@ git commit -m "feat: initialize project with Alpha AI architecture"
 **⚡ DELEGATE TO SUBAGENT** — spawn Task to run full setup validation.
 
 After the project scaffolding and git init, run a comprehensive validation to confirm the setup is actually working — not just that files exist. This catches misconfiguration, missing env vars, broken imports, and service connectivity issues **before** the developer starts building features.
+
+> **The canonical gate is `make verify`** (per `commands/references/LOCAL_DEV_STANDARD.md`):
+> `cp -n .env.example .env && make verify` must boot the full stack from working
+> defaults, wait for health, hit `/health` (200 `{"status":"ok"}`), and print
+> "✅ BOOT VERIFIED". The granular checks below (8a–8i) are what `make dev`/`make verify`
+> automate — if any fail, fix the cause AND add a row to the `LOCAL_DEV.md`
+> Troubleshooting matrix so the next person never hits it. **Init is NOT complete
+> until `make verify` passes on the fresh scaffold.**
 
 ### 8a. Environment & Dependencies Check
 
