@@ -20,6 +20,11 @@
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/session-context.sh",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/collect.sh",
+            "timeout": 5
           }
         ]
       }
@@ -44,12 +49,27 @@
             "timeout": 15
           }
         ]
+      },
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/collect.sh",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "Stop": [
       {
         "matcher": "*",
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/collect.sh",
+            "timeout": 5
+          },
           {
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/auto-build-stop-hook.sh",

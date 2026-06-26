@@ -1,5 +1,5 @@
 ---
-description: "Fully autonomous product builder. Takes a PRD/spec and builds the entire product without human intervention. Usage: /auto-build <path-to-prd.md> or /auto-build 'product description' --max-iterations 100"
+description: "Fully autonomous product builder. Takes a PRD/spec and builds the entire product without human intervention. Usage: /auto-build <path-to-prd.md> or /auto-build 'product description' --max-iterations 100 [--workflow for background, resumable Workflows orchestration]"
 ---
 
 # 🤖 Autonomous Product Builder (Auto-Build Loop)
@@ -40,6 +40,9 @@ Parse `$ARGUMENTS` to determine the input file:
 4. If $ARGUMENTS contains flags:
    → --lang python|nestjs|springboot → override language detection
    → --max-iterations N → set max iterations
+   → --workflow → orchestrate the build with native Claude Code **Workflows** (background,
+     resumable, context-light) instead of the interactive Agent-Teams / sequential loop.
+     See PHASE 0.5 (Build Mode Selection) and `references/AUTO_BUILD_WORKFLOW.md`.
    → The remaining non-flag part is the file path or description
 
 IMPORTANT: The input file can be ANY name — PRD.md, spec.md, design.md, planning.md,
@@ -445,9 +448,31 @@ Create `AUTO_BUILD_STATE.json`:
 ---
 
 
-## PHASE 0.5: BUILD MODE AUTO-DETECTION (Parallel vs Sequential)
+## PHASE 0.5: BUILD MODE SELECTION (Workflow · Parallel · Sequential)
 
-> **📖 REFERENCE FILE**: Read `commands/references/AUTO_BUILD_TEAMS.md` for the full detection and spawn process.
+**Choose the build mode in this priority order:**
+
+1. **⚡ WORKFLOW MODE** — if `$ARGUMENTS` contains the **`--workflow`** flag.
+   Orchestrate the entire build as a single deterministic Claude Code **Workflow** script
+   (GA in Claude Code 2.1.x): phases fan out across many subagents in the background,
+   intermediate results live in script variables (not the context window), and the run is
+   **resumable**. Best for **large, unattended, batch builds**.
+   → **📖 REFERENCE FILE**: Read `commands/references/AUTO_BUILD_WORKFLOW.md`, then build via
+   the `Workflow` tool. **SKIP the Agent-Teams/sequential detection below.**
+
+2. **👥 PARALLEL MODE (Agent Teams)** — else if `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`.
+   Interactive, **steerable** multi-teammate build — the team lead stays in the loop to
+   catch file-collision races, reroute bugs to the right owner, and make judgment calls
+   mid-flight (things a fixed Workflow script can't do). Best for **guided builds** where
+   you want a lead/human reacting as it runs.
+
+3. **📋 SEQUENTIAL MODE** — else. One phase at a time with Agent subagents. Simplest, fewest tokens.
+
+> **When to choose which:** `--workflow` = fire-and-forget at scale (and the same primitive
+> will later power autonomous Tempest test-runs / GraphMind ingestion across the ecosystem);
+> Agent Teams = reactive, lead-coordinated; Sequential = small builds / lowest cost / debugging.
+
+> **📖 REFERENCE FILE (modes 2 & 3)**: Read `commands/references/AUTO_BUILD_TEAMS.md` for the full Agent-Teams detection and spawn process.
 >
 > It contains (620 lines):
 >

@@ -1,7 +1,7 @@
 {
   "name": "cortex",
-  "description": "Cortex — SDLC Automation Engine. 48 commands, 13 agents, 20 skills, 7 hooks, 17 reference docs. Forge production-ready software from idea to deployment with zero human intervention. Self-contained meta-process skills (brainstorming, planning, TDD, debugging, verification), production-ready frontend bar, native Jira integration via the Atlassian MCP server, and scaffolders for apps, standalone MCP servers, and Claude Code plugins themselves.",
-  "version": "1.4.0",
+  "description": "Cortex — SDLC Automation Engine. 54 commands, 13 agents, 27 skills, 7 hooks, 18 reference docs. Forge production-ready software from idea to deployment with zero human intervention. Self-contained meta-process skills (brainstorming, planning, TDD, debugging, verification), production-ready frontend bar, always-runs-locally standard (one-command boot + verify gate), native Jira integration via the Atlassian MCP server, and scaffolders for apps, standalone MCP servers, and Claude Code plugins themselves.",
+  "version": "1.5.0",
   "mcpServers": "./.mcp.json",
   "author": {
     "name": "Alpha AI Service Pvt Ltd",

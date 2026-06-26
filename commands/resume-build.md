@@ -26,7 +26,13 @@ Read the state file and identify:
 3. **Blockers** — any unresolved issues
 4. **Test status** — current test results
 5. **Build status** — last build result
-6. **Build mode** — was it `sequential` or `parallel` (Agent Teams)?
+6. **Build mode** — was it `sequential`, `parallel` (Agent Teams), or `workflow`?
+
+> **If `build_mode` was `workflow`** (or the user passes `--workflow`): resume via native Workflows
+> instead of the Agent-Teams path below. Relaunch the `Workflow` tool with `{ scriptPath, resumeFromRunId }`
+> from `AUTO_BUILD_STATE.json` — the longest unchanged prefix of `agent()` calls returns cached results
+> instantly and only the remaining phases run live. See `commands/references/AUTO_BUILD_WORKFLOW.md` §5.
+> Then SKIP the Agent-Teams detection below.
 
 ## Step 3: Agent Teams Detection — MANDATORY (Check EVERY Resume)
 

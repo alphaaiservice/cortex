@@ -22,11 +22,17 @@ Generate a comprehensive **ONBOARDING.md** file in the project root with:
 - Environment variables needed (create a `.env.example` if missing)
 
 ### Setup Steps
-- Step-by-step commands to clone, install dependencies, configure, and run locally
+- **Lead with the one-command path** if the project follows the Cortex local-dev
+  standard (`LOCAL_DEV.md` / `commands/references/LOCAL_DEV_STANDARD.md`):
+  `git clone` → `cp .env.example .env` → `make dev` → open the app, then
+  `make verify` to confirm a healthy boot. Link `LOCAL_DEV.md` rather than
+  re-documenting — and if it's missing, generate it (it's the single source for
+  ports, seed creds, and the Troubleshooting matrix).
+- Otherwise: step-by-step commands to clone, install dependencies, configure, run locally
 - Database setup / migration commands
 - How to run the development server
 - How to run tests
-- Common troubleshooting tips
+- Common troubleshooting tips (reuse the LOCAL_DEV.md Troubleshooting matrix)
 
 ### IDE Configuration
 - Recommended VS Code extensions or IDE settings

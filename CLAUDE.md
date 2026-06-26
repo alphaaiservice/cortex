@@ -21,13 +21,18 @@ cortex/
 │   ├── plugin.json              # Plugin metadata (name, version, author)
 │   └── marketplace.json         # Marketplace catalog (for distribution via alphaaiservice/cortex)
 │
-├── commands/                     # SLASH COMMANDS — user invokes with /command-name (45 total)
+├── commands/                     # SLASH COMMANDS — user invokes with /command-name (54 total)
 │   │
 │   │  # ── Planning & Research ──
 │   ├── gen-prd.md               # /gen-prd — Generate PRD from brief idea
 │   ├── gen-brand.md             # /gen-brand — SVG logo & brand identity generation
 │   ├── market-research.md       # /market-research — Deep competitive analysis
 │   ├── sprint-plan.md           # /sprint-plan — Break PRD into sprint tasks with estimates
+│   │
+│   │  # ── Design & Media (v1.5.0) ──
+│   ├── gen-mockup.md            # /gen-mockup — UI screen mockups/wireframes as self-contained HTML/Next.js (brand-consistent, no API key)
+│   ├── gen-pitch.md             # /gen-pitch — Pitch/demo deck from PRD+research as Marp/Slidev markdown → PDF/HTML/PPTX
+│   ├── gen-demo-video.md        # /gen-demo-video — Product demo/marketing video as a Remotion project (script→TTS+captions→MP4)
 │   │
 │   │  # ── Project Setup ──
 │   ├── init-project.md          # /init-project — Scaffold new OR upgrade existing FastAPI/NestJS/Spring Boot project
@@ -87,7 +92,12 @@ cortex/
 │   ├── ai-upgrade.md            # /ai-upgrade — Implement AI capabilities on an existing feature
 │   │
 │   │  # ── Maintenance ──
-│   └── dep-update.md            # /dep-update — Auto-update dependencies safely
+│   ├── dep-update.md            # /dep-update — Auto-update dependencies safely
+│   │
+│   │  # ── Cortex Cloud (auth + telemetry) ──
+│   ├── cortex-login.md          # /cortex-login — Authenticate plugin to Cortex Cloud (RFC 8628 device grant)
+│   ├── cortex-logout.md         # /cortex-logout — Revoke + clear local Cortex Cloud credentials
+│   └── cortex-status.md         # /cortex-status — Show Cortex Cloud connection + project status
 │
 ├── agents/                       # SUBAGENTS — spawned via Agent tool for parallel work (13 total)
 │   ├── architect.md             # Architecture analysis and design reviews
@@ -104,7 +114,7 @@ cortex/
 │   ├── feature-analyzer.md      # Codebase analysis, feature discovery, dependency mapping
 │   └── ai-integration-specialist.md # AI/ML integration, LLM setup, vector search, cost tracking
 │
-├── skills/                       # SKILLS — auto-invoked by Claude (Agent Skills open standard, 9 total)
+├── skills/                       # SKILLS — auto-invoked by Claude (Agent Skills open standard, 24 total)
 │   ├── alpha-architecture/      # ⭐ MOST IMPORTANT — enforces tech stack + layer rules
 │   │   ├── SKILL.md
 │   │   └── references/
@@ -116,6 +126,8 @@ cortex/
 │   │       ├── CODE_PATTERNS_FRONTEND_PAGES.md # Frontend Part 2: Dashboard Layout, 6 Page Templates (List/Detail/Form/Settings/Dashboard/Auth)
 │   │       ├── CODE_PATTERNS_FRONTEND_UX.md    # Frontend Part 3: Components, Responsive, Skeletons, SEO, Animations, Dark Mode, Cmd+K
 │   │       ├── CODE_PATTERNS_CHROME_EXTENSION.md # Chrome Extension: MV3, Service Worker, Content Scripts, Messages, Storage, Security, AI Providers, Testing
+│   │       ├── CODE_PATTERNS_GENAI.md      # GenAI/LLM: LiteLLM gateway, prompts, agents, structured output, guardrails, caching (used by the genai skill)
+│   │       ├── RAG_BEST_PRACTICES.md       # RAG: chunking, embeddings, retrieval, re-ranking, agentic RAG, eval (used by the genai skill)
 │   │       ├── LANG_PROFILE_PYTHON.md      # Python stack: deps, dirs, configs, Docker
 │   │       ├── LANG_PROFILE_NESTJS.md      # NestJS stack: deps, dirs, configs, Docker
 │   │       ├── LANG_PROFILE_SPRINGBOOT.md  # Spring Boot stack: deps, dirs, configs, Docker
@@ -136,6 +148,22 @@ cortex/
 │   │   └── SKILL.md
 │   ├── performance/             # ⚡ Auto-enforces DB optimization, caching, async patterns
 │   │   └── SKILL.md
+│   ├── frontend/                # 🎨 Auto-enforces the frontend production bar (fonts, OKLCH tokens, real data, polish, friendly errors) — refs CODE_PATTERNS_FRONTEND_*
+│   │   └── SKILL.md
+│   ├── genai/                   # 🤖 Auto-enforces AI engineering (LiteLLM gateway, guardrails, cost caps, structured output, RAG, evals) — refs CODE_PATTERNS_GENAI + RAG_BEST_PRACTICES
+│   │   └── SKILL.md
+│   ├── accessibility/           # ♿ Auto-enforces WCAG 2.1 AA at authoring time (semantic HTML, ARIA, contrast, keyboard nav, focus)
+│   │   └── SKILL.md
+│   ├── database/                # 🗄️ Auto-enforces safe reversible zero-downtime migrations, datastore selection, repository boundary
+│   │   └── SKILL.md
+│   ├── mockup/                  # 🖼️ Auto-invoked on "mock up / wireframe a screen" — brand-consistent screens as code (paired with /gen-mockup)
+│   │   └── SKILL.md
+│   ├── pitch-deck/             # 📊 Auto-invoked on "pitch deck / slides / presentation" — Marp/Slidev → PDF/HTML/PPTX (paired with /gen-pitch)
+│   │   └── SKILL.md
+│   ├── video-producer/         # 🎬 Auto-invoked on "demo / marketing video" — Remotion project, TTS voiceover + captions (paired with /gen-demo-video)
+│   │   └── SKILL.md
+│   │   # (also: cost-estimator, dependency-mapper, feature-impact-analysis, metric-recommender, smart-retrofit — analysis & advisory;
+│   │   #         cortex-brainstorming, cortex-planning, cortex-tdd, cortex-debugging, cortex-verification — meta-process)
 │   └── jira-integration/        # 🟦 Auto-invoked on Jira work — bidirectional sync via Atlassian MCP (NO command)
 │       └── SKILL.md
 │
@@ -147,7 +175,7 @@ cortex/
 ├── scripts/                      # BASH SCRIPTS — executed by hooks or standalone
 │   ├── auto-loop.sh             # Persistent Ralph Loop runner (shell-level)
 │   ├── auto-build-stop-hook.sh  # Stop hook: prevents exit during auto-build
-│   ├── session-context.sh       # SessionStart hook: loads project context
+│   ├── session-context.sh       # SessionStart hook: loads project context + emits the SKILL PRECEDENCE directive (see below)
 │   └── safe-bash-check.sh       # PreToolUse hook: warns on dangerous commands
 │
 ├── README.md
@@ -255,6 +283,24 @@ Bash scripts executed by hooks or run standalone. They receive event data via st
 
 **`${CLAUDE_PLUGIN_ROOT}`** — Special variable that resolves to the plugin's root directory. Always use this in hooks.json paths.
 
+#### Skill Precedence Directive (in `session-context.sh`)
+
+**Problem it solves:** Cortex is auto-invoked-skill heavy (`alpha-architecture` + the `cortex-*`
+meta-skills). When other meta-skill plugins are also installed — especially **Superpowers**, whose
+`using-superpowers` skill injects a forceful `SessionStart` primer naming *its own* skills
+(`brainstorming`, `systematic-debugging`, …) as canonical — and when the user has many plugins
+installed (the per-turn skill listing has a context budget and **truncates descriptions** when it
+overflows), Cortex's skills lose the tie or get diluted. The visible symptom: `alpha-architecture`
+or the `cortex-*` skills silently don't fire, so standards stop being enforced.
+
+**The fix (ships with the plugin, not a per-machine settings hack):** `session-context.sh` emits a
+`<cortex-skill-precedence>` block on `SessionStart` (counter-priming, symmetric to how Superpowers
+wins) that names `alpha-architecture` as non-negotiable and asserts the `cortex-*` skills over their
+generic equivalents. A plugin **cannot disable another plugin's skills** (only user/managed
+`skillOverrides` can), so this is *precedence-priming*, not suppression — it makes Cortex win the tie
+for every user. If a user wants hard suppression instead, that's the user-side `skillOverrides`
+(`"superpowers:brainstorming": "off"` …) or disabling Superpowers entirely.
+
 ### Agent Teams (Experimental)
 
 When `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set, the plugin supports **Agent Teams** — multiple Claude Code instances coordinated as teammates with shared task lists and direct messaging.
@@ -272,6 +318,27 @@ When `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` is set, the plugin supports **Agen
 **Enable:** Set `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in `~/.claude/settings.json` under `"env"`.
 
 **Fallback:** When Agent Teams is not enabled, all commands fall back to the standard Agent tool subagent pattern automatically.
+
+### Workflow Mode (Native Claude Code Workflows)
+
+As of Claude Code 2.1.x, **Workflows** are GA — a first-class primitive for deterministic
+multi-agent orchestration (a JS script that fans agents out in the background, keeps
+intermediate results in script variables instead of the context window, and is resumable).
+
+`/auto-build` (and `/resume-build`) now expose a **third build mode** via the **`--workflow`** flag,
+giving three modes total — selected in `commands/auto-build.md` PHASE 0.5:
+
+1. **⚡ Workflow** (`--workflow`) — background, resumable, context-light; best for large *unattended*
+   builds. Reference: **`commands/references/AUTO_BUILD_WORKFLOW.md`**. Because no lead is watching,
+   the Workflow script bakes in its own quality gates (hard test gate + adversarial verify).
+2. **👥 Agent Teams** (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`) — interactive, *steerable*; the lead
+   catches races, reroutes bugs, makes judgment calls mid-flight. Reference: `AUTO_BUILD_TEAMS.md`.
+3. **📋 Sequential** — one phase at a time; simplest, lowest cost.
+
+Agent Teams (`TeamCreate`/`TaskCreate`/`TaskUpdate`/`SendMessage`/shutdown) remains fully functional
+on current Claude Code (verified end-to-end). Workflow mode is **additive** — it does not replace the
+Agent-Teams path; it's the "fire-and-forget at scale" option, and the same primitive will later power
+autonomous Tempest test-runs and GraphMind ingestion across the Alpha AI ecosystem.
 
 ### MCP Servers Cortex Consumes (`.mcp.json`)
 
@@ -315,6 +382,18 @@ The 4 consumers (point to the canonical, do NOT inline stack details):
 4. **`commands/gen-prd.md`** — PRD generation instructions tell the agent to select sections from `AUTO_BUILD_STACK.md` based on FEATURE_PROFILE, never to re-template stack content
 
 **When you need to add/change a technology**: edit `AUTO_BUILD_STACK.md` only. The 4 consumers will pick it up automatically because they reference (not duplicate) it.
+
+**🎯 SINGLE SOURCE OF TRUTH (local dev)**: `commands/references/LOCAL_DEV_STANDARD.md`
+is the canonical "always runs locally" contract — one-command `make dev` boot,
+working-default `.env.example`, healthcheck/dependency gating, auto migrate+seed,
+the `make verify` boot gate (`/health` → 200), pinned toolchain, the generated
+`LOCAL_DEV.md` doc, and the Troubleshooting matrix. Consumers reference it (don't
+duplicate): `auto-build` (Phase 1 scaffold, Phase 2 compose, Phase 13 docs, Phase 15
+boot gate), `init-project` (scaffold + Step 8 `make verify`), `gen-docs`
+(`--type=local` → LOCAL_DEV.md), `onboard-dev`, and the `project-setup` skill. The
+promise: a fresh clone runs locally with one command and never fails for an avoidable
+reason (missing env, unready DB, wrong port, pending migration, missing seed). Edit
+the standard THERE.
 
 Language-specific details are in reference files (keep in sync with core files):
 - **`references/LANG_PROFILE_{LANG}.md`** — Directory structure, dependencies, configs, Docker, verify commands
@@ -506,15 +585,15 @@ claude --plugin-dir ~/claude-plugins/cortex
 6. **Exit code 2 in hooks** — blocks the action (critical for auto-build loop)
 7. **Single source of truth for tech stack** — `commands/references/AUTO_BUILD_STACK.md` is canonical. The 4 consumers (auto-build.md, alpha-architecture SKILL, init-project.md, gen-prd.md) reference it; do NOT duplicate stack content into them.
 8. **Test with `--plugin-dir` flag** — fastest way to iterate during development
-9. **48 slash commands** covering the COMPLETE SDLC (planning → building → testing → shipping → operations → maintenance) plus scaffolders for standalone MCP servers and Claude Code plugins
+9. **54 slash commands** covering the COMPLETE SDLC (planning → design/media → building → testing → shipping → operations → maintenance) plus scaffolders for standalone MCP servers and Claude Code plugins (design/media trio — /gen-mockup, /gen-pitch, /gen-demo-video — added v1.5.0)
 10. **13 subagents** for parallel and specialized work (11 core + feature-analyzer + ai-integration-specialist added v1.1.0)
-11. **20 auto-invoked skills** organized in tiers: 9 domain enforcement (security, devops, performance, etc.) + 5 analysis/advisory (cost-estimator, dependency-mapper, etc., added v1.1.0) + 5 meta-process (cortex-brainstorming, planning, tdd, debugging, verification, added v1.2.0 — makes Cortex self-contained, no Superpowers dep) + 1 integration (jira-integration, added v1.4.0 — bidirectional Jira sync via the Atlassian MCP server, no command)
+11. **27 auto-invoked skills** organized in tiers: 13 domain enforcement (alpha-architecture, security, devops, performance, frontend, genai, accessibility, database, etc. — frontend/genai/accessibility/database added v1.5.0) + 5 analysis/advisory (cost-estimator, dependency-mapper, etc., added v1.1.0) + 5 meta-process (cortex-brainstorming, planning, tdd, debugging, verification, added v1.2.0 — makes Cortex self-contained, no Superpowers dep) + 3 design/media (mockup, pitch-deck, video-producer — paired with the /gen-mockup, /gen-pitch, /gen-demo-video commands, added v1.5.0) + 1 integration (jira-integration, added v1.4.0 — bidirectional Jira sync via the Atlassian MCP server, no command)
 12. **36 modern app features** consistently across all core files (23 app + 3 open standards + 10 advanced GenAI)
 13. **Open standards adopted**: Agent Skills (Anthropic), MCP (Linux Foundation), A2A (Google/Linux Foundation)
 14. **Skills follow progressive disclosure** — alpha-architecture uses references/ for code patterns per spec
 15. **Existing app support**: /analyze-project → /gap-analysis → /retrofit or /migrate-stack workflow
 16. **`/init-project --existing`** — upgrades existing projects without overwriting code
-17. **Full SDLC coverage** organized by phase: Planning (4) → Setup (6, with init-mcp-server + init-claude-plugin) → Building (7) → Quality (8) → Shipping (5) → DevOps (9) → Docs (3) → Analysis & Intelligence (5) → Maintenance (1) = 48 total
+17. **Full SDLC coverage** organized by phase: Planning (4) → Design & Media (3, v1.5.0: gen-mockup + gen-pitch + gen-demo-video) → Setup (6, with init-mcp-server + init-claude-plugin) → Building (7) → Quality (8) → Shipping (5) → DevOps (9) → Docs (3) → Analysis & Intelligence (5) → Maintenance (1) → Cortex Cloud (3) = 54 total
 18. **Security auto-enforced** — security skill triggers on any auth/input/secrets code
 19. **Performance auto-enforced** — performance skill triggers on DB queries, caching, async code
 20. **DevOps auto-enforced** — devops skill triggers on Docker, CI/CD, K8s, infra code
